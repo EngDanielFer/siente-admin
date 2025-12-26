@@ -1,0 +1,41 @@
+<div class="container mb-3 text-end">
+    <button class="btn btn-success" (click)="toggleFormulario()">
+        {{ mostrarFormulario ? 'Ocultar formulario' : 'Agregar Insumo' }}
+    </button>
+</div>
+<div class="container mb-4" *ngIf="mostrarFormulario">
+    <h3 *ngIf="modoEdicion" class="mb-3">Editar Insumo</h3>
+    <h3 *ngIf="!modoEdicion" class="mb-3">Agregar Insumo</h3>
+    <form (ngSubmit)="onSubmit()" class="row g-3">
+        <div class="mb-3 col-md-6">
+            <label for="nombreInsumo" class="form-label">Nombre del insumo</label>
+            <input type="text" class="form-control" id="nombreInsumo" name="nombreInsumo"
+                [(ngModel)]="insumo.nombre_insumo" required>
+        </div>
+        <div class="mb-3 col-md-6">
+            <label for="cantidadInsumo" class="form-label">Cantidad del insumo (en g o ml)</label>
+            <input type="number" class="form-control" id="cantidadInsumo" name="cantidadInsumo"
+                [(ngModel)]="insumo.cantidad_insumo_total" required>
+        </div>
+        <div class="mb-3 col-md-6">
+            <label for="proveedorInsumo" class="form-label">Proveedor</label>
+            <input type="text" class="form-control" id="proveedorInsumo" name="proveedorInsumo"
+                [(ngModel)]="insumo.proveedor_insumo" required>
+        </div>
+        <div class="mb-3 col-md-6">
+            <label for="precioInsumo" class="form-label">Precio</label>
+            <div class="input-group">
+                <div class="input-group-text">$</div>
+                <input type="number" class="form-control" id="precioInsumo" name="precioInsumo"
+                    [(ngModel)]="insumo.precio_insumo" required>
+            </div>
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">
+                {{ modoEdicion ? 'Actualizar' : 'Agregar' }}
+            </button>
+            <button type="button" class="btn btn-secondary ms-2" *ngIf="modoEdicion"
+                (click)="limpiarFormulario()">Cancelar</button>
+        </div>
+    </form>
+</div>

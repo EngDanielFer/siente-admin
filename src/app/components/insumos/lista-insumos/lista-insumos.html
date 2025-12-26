@@ -1,0 +1,90 @@
+<div class="container">
+
+    <div *ngIf="loading" class="text-center my-4">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando</span>
+        </div>
+    </div>
+
+    <div *ngIf="!loading" class="d-flex justify-content-between align-items-center mt-3 mb-3">
+        <div>
+            Mostrando {{ (paginaActual - 1) * itemInsumosPorPagina + 1 }} -
+            {{ calcularFin() }}
+            de {{ insumos.length }} registros
+        </div>
+
+        <nav aria-label="Navegación">
+            <ul class="pagination mb-0">
+                <li class="page-item" [class.disabled]="paginaActual === 1">
+                    <a class="page-link" (click)="paginaAnterior();" style="cursor: pointer;">Anterior</a>
+                </li>
+
+                <li class="page-item" *ngFor="let pagina of numPaginas" [class.active]="pagina === paginaActual">
+                    <a class="page-link" (click)="cambiarPagina(pagina)" style="cursor: pointer;">
+                        {{ pagina }}
+                    </a>
+                </li>
+
+                <li class="page-item" [class.disabled]="paginaActual === paginasTotales">
+                    <a class="page-link" (click)="paginaSiguiente()" style="cursor: pointer;">Siguiente</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <table *ngIf="!loading" class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">ID de insumo</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Cantidad total</th>
+                <th scope="col">Cantidad restante</th>
+                <th scope="col">Proveedor</th>
+                <th scope="col">Precio</th>
+                <th scope="col">Precio por unidad (g o ml)</th>
+                <th scope="col">Disponibilidad</th>
+                <th scope="col">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let ins of insumosPorPagina">
+                <td>{{ ins.id }}</td>
+                <td>{{ ins.nombre_insumo }}</td>
+                <td>{{ ins.cantidad_insumo_total }}</td>
+                <td>{{ ins.cantidad_insumo_restante }}</td>
+                <td>{{ ins.proveedor_insumo }}</td>
+                <td>{{ ins.precio_insumo }}</td>
+                <td>{{ ins.precio_por_g_ml }}</td>
+                <td>{{ ins.estado_insumo }}</td>
+                <td>
+                    <button class="btn btn-primary btn-sm" (click)="editarInsumo(ins)">Actualizar</button>&nbsp;
+                    <button class="btn btn-danger btn-sm" (click)="borrarInsumo(ins.id!)">Eliminar</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+        <div>
+            Mostrando {{ (paginaActual - 1) * itemInsumosPorPagina + 1 }} -
+            {{ calcularFin() }}
+            de {{ insumos.length }} registros
+        </div>
+
+        <nav aria-label="Navegación">
+            <ul class="pagination mb-0">
+                <li class="page-item" [class.disabled]="paginaActual === 1">
+                    <a class="page-link" (click)="paginaAnterior();" style="cursor: pointer;">Anterior</a>
+                </li>
+
+                <li class="page-item" *ngFor="let pagina of numPaginas" [class.active]="pagina === paginaActual">
+                    <a class="page-link" (click)="cambiarPagina(pagina)" style="cursor: pointer;">
+                        {{ pagina }}
+                    </a>
+                </li>
+
+                <li class="page-item" [class.disabled]="paginaActual === paginasTotales">
+                    <a class="page-link" (click)="paginaSiguiente()" style="cursor: pointer;">Siguiente</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>

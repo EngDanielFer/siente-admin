@@ -1,1 +1,41 @@
 /* You can add global styles to this file, and also import other style files */
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.content {
+    margin-left: 250px;
+    min-height: 100vh;
+    width: calc(100% - 250px);
+    transition: margin-left 0.3s ease, width 0.3s ease;
+    padding: 0;
+}
+
+.content.collapsed {
+    margin-left: 80px;
+    width: calc(100% - 80px);
+}
+
+.content .container-fluid {
+    max-width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 80px !important;
+    }
+
+    .content {
+        margin-left: 80px !important;
+        width: calc(100% - 80px) !important;
+    }
+}

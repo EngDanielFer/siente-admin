@@ -1,0 +1,21 @@
+<div class="sidebar-wrapper">
+    <nav [class.collapsed]="isCollapsed" class="sidebar bg-dark" id="sidebar">
+        <div class="sidebar-header p-3">
+            <h4 class="text-white mb-0" *ngIf="!isCollapsed">Admin Siente</h4>
+            <h4 class="text-white mb-0" *ngIf="isCollapsed">Siente</h4>
+        </div>
+
+        <ul class="nav flex-column">
+            <li class="nav-item" *ngFor="let item of menuItems">
+                <a class="nav-link text-white d-flex align-items-center" [routerLink]="item.route" routerLinkActive="active">
+                    <i [class]="'bi ' + item.icon + ' me-2'"></i>
+                    <span *ngIf="!isCollapsed">{{ item.label }}</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <button class="btn btn-dark toggle-btn" (click)="toggleSidebar()">
+        <i [class]="isCollapsed ? 'bi bi-chevron-right' : 'bi bi-chevron-left'"></i>
+    </button>
+</div>

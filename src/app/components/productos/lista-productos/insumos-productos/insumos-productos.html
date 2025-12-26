@@ -1,0 +1,50 @@
+<div class="modal-backdrop" (click)="cerrar.emit()"></div>
+<div class="modal-content-custom">
+    <div class="modal-header">
+        <h5 class="modal-title">Insumos del producto</h5>
+        <button type="button" class="btn-close" (click)="cerrar.emit()"></button>
+    </div>
+
+    <div class="modal-body">
+        <div *ngIf="loading" class="text-center my-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando</span>
+            </div>
+        </div>
+
+        <div *ngIf="!loading && error" class="alert alert-danger">
+            {{ error }}
+        </div>
+
+        <div *ngIf="!loading && !error">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre del insumo</th>
+                            <th>Cantidad</th>
+                            <th>Precio del insumo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let insumo of insumos">
+                            <td>{{ insumo.idInsumo }}</td>
+                            <td>{{ insumo.nombreInsumo }}</td>
+                            <td>{{ insumo.cantidadInsumo }}</td>
+                            <td>{{ insumo.precioInsumo | currency:'COP':'symbol-narrow' }}</td>
+                        </tr>
+                        <tr *ngIf="insumos.length === 0">
+                            <td colspan="6" class="text-center py-4">
+                                <p class="text-muted">No hay insumos registrados para este producto</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrar.emit()">Cerrar</button>
+    </div>
+</div>

@@ -1,0 +1,330 @@
+<div class="container mb-3 text-end">
+    <button class="btn btn-success" (click)="toggleFormulario()">
+        {{ mostrarFormulario ? 'Ocultar formulario' : 'Agregar Producto' }}
+    </button>
+</div>
+<div class="container mb-4" *ngIf="mostrarFormulario">
+    <div class="alert  alert-info d-flex justify-content-between align-items-center" *ngIf="modoEdicion">
+        <div>
+            <i class="bi bi-pencil-square"></i> Editando producto: {{productoId}}
+        </div>
+        <button type="button" class="btn btn-sm btn-secondary" (click)="cancelarEdicion()">
+            <i class="bi bi-x-circle"></i> Cancelar Edición
+        </button>
+    </div>
+
+    <h3 class="mb-3">
+        {{ modoEdicion ? 'Editar Producto' : 'Agregar Producto' }}
+    </h3>
+    <form [formGroup]="productoFormulario" (ngSubmit)="onSubmit()">
+        <div class="row g-3">
+            <div class="mb-3 col-md-6">
+                <label for="idProducto" class="form-label">ID del producto<span class="text-danger">*</span></label>
+                <input type="number" class="form-control" formControlName="id" name="idProducto" id="idProducto"
+                    [class.is-invalid]="submitted && productoFormulario.get('id')?.invalid" required
+                    [readonly]="modoEdicion">
+                <div class="invalid-feedback">
+                    Este dato es requerido
+                </div>
+            </div>
+            <div class="mb-3 col-md-6">
+                <label for="nombreProducto" class="form-label">Nombre del producto<span
+                        class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="nombre_producto" name="nombreProducto"
+                    id="nombreProducto"
+                    [class.is-invalid]="submitted && productoFormulario.get('nombre_producto')?.invalid" required>
+                <div class="invalid-feedback">
+                    Este dato es requerido
+                </div>
+            </div>
+
+            <div class="mb-3 col-12">
+                <label for="descripcionProducto" class="form-label">Descripción<span
+                        class="text-danger">*</span></label>
+                <textarea class="form-control" formControlName="descripcion_producto" name="descripcionProducto"
+                    id="descripcionProducto" rows="3" style="resize: none;"
+                    [class.is-invalid]="submitted && productoFormulario.get('descripcion_producto')?.invalid"></textarea>
+                <div class="invalid-feedback">
+                    Este dato es requerido
+                </div>
+            </div>
+
+            <div class="mb-3 col-md-6">
+                <label for="cantidadProducto" class="form-label">Cantidad en g o ml<span
+                        class="text-danger">*</span></label>
+                <input type="number" class="form-control" formControlName="peso_producto" name="cantidadProducto"
+                    id="cantidadProducto"
+                    [class.is-invalid]="submitted && productoFormulario.get('peso_producto')?.invalid" required>
+                <div class="invalid-feedback">
+                    Este dato es requerido, debe ser mayor a 0
+                </div>
+            </div>
+
+            <div class="mb-3 col-md-6">
+                <label for="imagenProducto" class="form-label">
+                    {{ modoEdicion ? 'Cambiar Imagen (opcional)' : 'Subir Imagen' }}
+                </label>
+                <input type="file" class="form-control" accept="image/*" name="imagenProducto" id="imagenProducto"
+                    (change)="onImageSelected($event)">
+                <span class="form-text text-muted">
+                    {{ modoEdicion ? 'Dejar vacío si desea dejar la imagen actual' : 'Seleccione una imagen' }}
+                </span>
+            </div>
+
+            <div class="col-md-6 mb-3" *ngIf="previewImagen">
+                <label class="form-label">Vista previa</label>
+                <div class="border rounded p-2 text-center bg-light">
+                    <img [src]="previewImagen" alt="Preview"
+                        style="max-width: 100%; max-height: 200px; object-fit: contain;">
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+
+            <div class="col-12">
+                <h5 class="mb-3">
+                    <i class="bi bi-box-seam"></i> Insumos del producto
+                </h5>
+            </div>
+
+            <div class="col-12" formArrayName="insumos">
+                <div class="row mb-2 align-items-center" *ngFor="let insumo of insumos.controls; let i = index"
+                    [formGroupName]="i">
+                    <div class="col-md-4">
+                        <label for="" class="form-label small">
+                            Seleccionar insumo
+                        </label>
+                        <select formControlName="id_insumo" id="insumo_{{i}}" class="form-select"
+                            [class.is-invalid]="submitted && insumo.get('id_insumo')?.invalid">
+                            <option value="0" selected disabled>Seleccione</option>
+                            <option *ngFor="let insumoDisponible of getInsumosDisponibles(i)"
+                                [value]="insumoDisponible.id">
+                                {{ insumoDisponible.nombre_insumo }}
+                            </option>
+                        </select>
+                        <!-- <input type="number" class="form-control" formControlName="id_insumo"
+                        [class.is-invalid]="submitted && insumo.get('id_insumo')?.invalid"> -->
+                        <div class="invalid-feedback">
+                            Debe seleccionar un insumo
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="cantidad_{{i}}" class="form-label small">
+                            Cantidad (g o ml)<span class="text-danger">*</span>
+                        </label>
+                        <input type="number" class="form-control" formControlName="cantidad" id="cantidad_{{i}}"
+                            [class.is-invalid]="submitted && insumo.get('cantidad')?.invalid">
+                        <div class="invalid-feedback">
+                            Este dato es requerido
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small">Costo</label>
+                        <div class="form-control bg-light">
+                            ${{ calcularCostoInsumo(insumo.get('id_insumo')?.value, insumo.get('cantidad')?.value) |
+                            number: '1.2-2' }}
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small d-block">&nbsp;</label>
+                        <button type="button" class="btn btn-danger btn-sm w-100" (click)="eliminarInsumo(i)">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mb-0" *ngIf="insumos.length === 0">
+                    <i class="bi bi-info-circle"></i> No hay insumos agregados
+                </div>
+            </div>
+
+            <div class="col-12 mb-3">
+                <button type="button" class="btn btn-success btn-sm" (click)="agregarInsumo()">
+                    <i class="bi bi-plus-circle"></i> Agregar Insumo
+                </button>
+            </div>
+        </div>
+
+        <div class="col-12" *ngIf="insumos.length > 0">
+            <div class="alert alert-success">
+                <strong><i class="bi bi-basket"></i> Costo Total de Insumos:</strong>
+                ${{ calcularCostoTotalInsumos() | number:'1.2-2' }}
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <h5 class="pb-2 mb-3">
+                    <i class="bi bi-lightning-charge"></i> Costos de servicios
+                </h5>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label for="costo_luz" class="form-label">Luz</label>
+                <div class="input-group">
+                    <div class="input-group-text">$</div>
+                    <input type="number" class="form-control" formControlName="costo_luz" id="costo_luz">
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label for="costo_agua" class="form-label">Agua</label>
+                <div class="input-group">
+                    <div class="input-group-text">$</div>
+                    <input type="number" class="form-control" formControlName="costo_agua" id="costo_agua">
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label for="costo_gas" class="form-label">Gas</label>
+                <div class="input-group">
+                    <div class="input-group-text">$</div>
+                    <input type="number" class="form-control" formControlName="costo_gas" id="costo_gas">
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label for="costo_internet" class="form-label">Internet</label>
+                <div class="input-group">
+                    <div class="input-group-text">$</div>
+                    <input type="number" class="form-control" formControlName="costo_internet" id="costo_internet">
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label for="costo_aseo" class="form-label">Aseo</label>
+                <div class="input-group">
+                    <div class="input-group-text">$</div>
+                    <input type="number" class="form-control" formControlName="costo_aseo" id="costo_aseo">
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <h5 class="pb-2 mb-3">
+                    <i class="bi bi-gear"></i> Costos de operación
+                </h5>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label for="costo_transporte" class="form-label">Transporte</label>
+                <div class="input-group">
+                    <div class="input-group-text">$</div>
+                    <input type="number" class="form-control" formControlName="costo_transporte" id="costo_transporte">
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label for="costo_perdidas" class="form-label">Pérdidas</label>
+                <div class="input-group">
+                    <div class="input-group-text">$</div>
+                    <input type="number" class="form-control" formControlName="costo_perdidas" id="costo_perdidas">
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label for="costo_herramientas" class="form-label">Herramientas</label>
+                <div class="input-group">
+                    <div class="input-group-text">$</div>
+                    <input type="number" class="form-control" formControlName="costo_herramientas"
+                        id="costo_herramientas">
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label for="costo_etiqueta" class="form-label">Etiqueta</label>
+                <div class="input-group">
+                    <div class="input-group-text">$</div>
+                    <input type="number" class="form-control" formControlName="costo_etiqueta" id="costo_etiqueta">
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label for="costo_mano_obra" class="form-label">Mano de Obra</label>
+                <div class="input-group">
+                    <div class="input-group-text">$</div>
+                    <input type="number" class="form-control" formControlName="costo_mano_obra" id="costo_mano_obra">
+                </div>
+            </div>
+
+            <div class="col-md-9 mb-3">
+                <label for="comentario_mano_obra" class="form-label">Comentario Mano de Obra</label>
+                <input type="text" class="form-control" formControlName="comentario_mano_obra"
+                    id="comentario_mano_obra">
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <h5 class="pb-2 mb-3">
+                    <i class="bi bi-megaphone"></i> Marketing y Administración
+                </h5>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label for="costo_mark_redes" class="form-label">Marketing Redes Sociales</label>
+                <div class="input-group">
+                    <div class="input-group-text">$</div>
+                    <input type="number" class="form-control" formControlName="costo_mark_redes" id="costo_mark_redes">
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label for="costo_mark_disenador" class="form-label">Marketing Diseñador</label>
+                <div class="input-group">
+                    <div class="input-group-text">$</div>
+                    <input type="number" class="form-control" formControlName="costo_mark_disenador"
+                        id="costo_mark_disenador">
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label for="costo_admin" class="form-label">Administración</label>
+                <div class="input-group">
+                    <div class="input-group-text">$</div>
+                    <input type="number" class="form-control" formControlName="costo_admin" id="costo_admin">
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-info border-info">
+                    <h5 class="alert-heading"><i class="bi bi-calculator"></i> Resumen Financiero</h5>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong>Costo de Insumos:</strong></p>
+                            <h5 class="text-success">${{ calcularCostoTotalInsumos() | number:'1.2-2' }}</h5>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong>Costos Fijos:</strong></p>
+                            <h5 class="text-warning">${{ calcularCostosFijos() | number:'1.2-2' }}</h5>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong>Costo Total de Producción:</strong></p>
+                            <h4 class="text-primary">${{ calcularCostoTotal() | number:'1.2-2' }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="button" class="btn btn-secondary" (click)="resetFormulario()" [disabled]="loading">
+                        <i class="bi bi-arrow-counterclockwise"></i> Limpiar Formulario
+                    </button>
+                    <button type="submit" class="btn btn-primary" [disabled]="loading">
+                        <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                        <i *ngIf="!loading" class="modoEdicion ? 'bi bi-arrow-repeat' : 'bi bi-save'"></i>
+                        {{ loading ? 'Guardando' : (modoEdicion ? 'Actualizar Producto' : 'Guardar Producto') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,53 @@
+<div class="modal-backdrop" (click)="cerrar.emit()"></div>
+<div class="modal-content-custom">
+    <div class="modal-header">
+        <h5 class="modal-title">Costos Fijos del Producto</h5>
+        <button type="button" class="btn-close" (click)="cerrar.emit()"></button>
+    </div>
+
+    <div class="modal-body">
+        <div *ngIf="loading" class="text-center my-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando</span>
+            </div>
+        </div>
+
+        <div *ngIf="!loading && error" class="alert alert-danger">
+            {{ error }}
+        </div>
+
+        <div *ngIf="!loading && !error">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nombre del costo</th>
+                            <th>Costo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let costo of costosFijos">
+                            <td>{{ costo.nombre }}</td>
+                            <td>{{ costo.costo | currency:'COP':'symbol-narrow' }}</td>
+                        </tr>
+                        <tr *ngIf="costosFijos.length === 0">
+                            <td colspan="4" class="text-center py-4">
+                                <p class="text-muted">No hay costos fijos registrados para este producto</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot *ngIf="costosFijos.length > 0">
+                        <tr>
+                            <td class="text-end"><strong>Total:</strong></td>
+                            <td><strong>{{ calcularTotal() | currency:'COP':'symbol-narrow' }}</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrar.emit()">Cerrar</button>
+    </div>
+</div>

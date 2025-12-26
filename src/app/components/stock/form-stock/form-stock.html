@@ -1,0 +1,37 @@
+<div class="container mb-4">
+    <h3 class="mb-3">Agregar Stock</h3>
+    <form [formGroup]="stockFormulario" (ngSubmit)="guardarStock()">
+        <div class="row">
+            <div class="mb-3 col-md-6">
+                <label for="producto" class="form-label">Producto</label>
+                <select name="producto" id="producto" class="form-select" formControlName="id_producto"
+                    [class.is-invalid]="idProductoInvalid" [disabled]="loadingProductos">
+                    <option [ngValue]="0" selected disabled>
+                        {{ loadingProductos ? 'Cargando' : 'Seleccione' }}
+                    </option>
+                    <option *ngFor="let producto of listaProductos" [ngValue]="producto.id">
+                        {{ producto.nombre_producto }}
+                    </option>
+                </select>
+                <div class="invalid-feedback" *ngIf="idProductoInvalid">
+                    Este dato es requerido
+                </div>
+            </div>
+            <div class="mb-3 col-md-6">
+                <label for="cantidad_producto" class="form-label">Cantidad</label>
+                <input type="number" name="cantidad_producto" id="cantidad_producto" class="form-control"
+                    formControlName="cantidad_producto" [class.is-invalid]="cantidadProductoInvalid" min="1">
+                <div class="invalid-feedback" *ngIf="cantidadProductoInvalid">
+                    Este dato es requerido
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary" [disabled]="enviando || loadingProductos">
+                        {{ enviando ? 'Guardando...' : 'Guardar' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
