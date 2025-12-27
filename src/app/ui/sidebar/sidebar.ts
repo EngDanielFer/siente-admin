@@ -27,7 +27,8 @@ export class Sidebar {
     { icon: 'bi-puzzle', label: 'Insumos', route: '/insumos' },
     { icon: 'bi-leaf', label: 'Productos', route: '/productos' },
     { icon: 'bi-box-fill', label: 'Stock', route: '/stock' },
-    { icon: 'bi-currency-dollar', label: 'Ganancias', route: '/ganancias' }
+    { icon: 'bi-currency-dollar', label: 'Ganancias', route: '/ganancias' },
+    { icon: 'bi-receipt', label: 'Facturas', route: '/facturas' }
   ]
 
 }
