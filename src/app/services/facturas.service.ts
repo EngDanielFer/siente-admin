@@ -20,4 +20,8 @@ export class FacturasService {
   getFacturaById(id: number): Observable<FacturaCompletaInterface> {
     return this.http.get<FacturaCompletaInterface>(`${this.apiUrl}/${id}`);
   }
+
+  crearFactura(payload: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}`, payload);
+  }
 }

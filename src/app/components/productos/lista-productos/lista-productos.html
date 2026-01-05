@@ -47,6 +47,7 @@
                         <th scope="col">Ganancias al detal</th>
                         <th scope="col">Precio por mayor</th>
                         <th scope="col">Precio al detal</th>
+                        <th scope="col">Stock</th>
                         <th scope="col">Acciones</th>
                     </tr>
                 </thead>
@@ -66,6 +67,7 @@
                         <td>{{ prod.ganancia_detal }}</td>
                         <td>{{ prod.precio_por_mayor }}</td>
                         <td>{{ prod.precio_detal }}</td>
+                        <td>{{ prod.stock_producto }}</td>
                         <td>
                             <button class="btn btn-primary btn-sm" (click)="editarProducto(prod.id!)">Actualizar</button>
                             <button class="btn btn-info btn-sm" (click)="verCostosFijos(prod.id!)">
@@ -79,7 +81,7 @@
                     </tr>
 
                     <tr *ngIf="productosPorPagina.length === 0">
-                        <td colspan="11" class="text-center py-5">
+                        <td colspan="12" class="text-center py-5">
                             <p class="text-muted mt-3">No hay productos registrados</p>
                         </td>
                     </tr>

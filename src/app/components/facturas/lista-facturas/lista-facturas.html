@@ -98,6 +98,7 @@
                     </table>
 
                     <div class="text-end">
+                        <p>Subtotal: {{ facturaSeleccionada.valorPagado | currency:'COP' }}</p>
                         <p>Envío: {{ facturaSeleccionada.precioEnvio | currency:'COP' }}</p>
                         <h5>Total: {{ facturaSeleccionada.valorTotal | currency:'COP' }}</h5>
                     </div>

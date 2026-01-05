@@ -7,6 +7,7 @@ export interface ProductosInterface {
     ganancia_detal: number,
     precio_por_mayor: number,
     precio_detal: number,
+    stock_producto?: number,
     id?: number,
     imagen_producto?: string
 }

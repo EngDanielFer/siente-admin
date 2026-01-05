@@ -1,0 +1,77 @@
+<div class="container mb-3 text-end">
+    <button class="btn btn-success">
+        Crear Factura
+    </button>
+</div>
+<div class="container mb-4">
+    <h3 class="mb-3">Agregar factura</h3>
+    <form [formGroup]="facturaForm" (ngSubmit)="enviarFactura()">
+        <fieldset formGroupName="datosCliente" class="border p-3 mb-3">
+            <legend>Datos del cliente</legend>
+            <div class="row g-3">
+                <input class="form-control" placeholder="Nombre" formControlName="nombre_cliente">
+                <input class="form-control" placeholder="Apellido" formControlName="apellido_cliente">
+                <input class="form-control" placeholder="Email" formControlName="email_cliente">
+                <input class="form-control" placeholder="Dirección" formControlName="direccion_cliente">
+                <input class="form-control" placeholder="Complemento" formControlName="complemento_direccion">
+                <input class="form-control" placeholder="Teléfono" formControlName="telefono_cliente">
+                <input class="form-control" placeholder="País" formControlName="pais_cliente">
+                <input class="form-control" placeholder="Región" formControlName="region_cliente">
+                <input class="form-control" placeholder="Ciudad" formControlName="ciudad_cliente">
+            </div>
+        </fieldset>
+
+        <fieldset class="border p-3 mb-3">
+            <legend>Productos</legend>
+
+            <div formArrayName="productos">
+                <div *ngFor="let p of productos.controls; let i = index" [formGroupName]="i" class="row g-2 mb-2">
+
+                    <select class="form-select col" formControlName="id_producto">
+                        <option value="" disabled selected>
+                            Seleccione un producto
+                        </option>
+                        <option *ngFor="let prod of productosDisponibles" [value]="prod.id">
+                            {{ prod.nombre_producto }} (Stock: {{ prod.stock_producto }})
+                        </option>
+                    </select>
+                    <input class="form-control col" placeholder="Cantidad" type="number"
+                        formControlName="cantidad_producto" min="1" step="1">
+
+                    <button type="button" class="btn btn-danger col-2" (click)="eliminarProducto(i)">
+                        X
+                    </button>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-secondary mt-2" (click)="agregarProducto()">
+                + Agregar producto
+            </button>
+        </fieldset>
+
+        <div class="row g-3 mb-3">
+            <select class="form-select" formControlName="tipo_precio">
+                <option value="mayor">Precio al por mayor</option>
+                <option value="detal">Precio al detal</option>
+            </select>
+            <input class="form-control" placeholder="Subtotal" type="number" formControlName="subtotal" readonly>
+            <div class="alert alert-info mb-3">
+                <strong>Precio de envío:</strong>
+                {{ facturaForm.get('precio_envio')?.value | currency:'COP' }}
+            </div>
+            <input class="form-control" placeholder="Método de pago" formControlName="metodo_pago">
+        </div>
+
+        <button class="btn btn-success w-100">
+            Crear factura
+        </button>
+    </form>
+
+    <div *ngIf="resultado" class="alert alert-success mt-4">
+        <strong>Factura creada:</strong><br>
+        ID: {{ resultado.id_factura }}<br>
+        Valor total: {{ resultado.valor_total | currency }}<br>
+        Valor pagado: {{ resultado.valor_pagado | currency }}<br>
+        Precio envío: {{ resultado.precio_envio | currency }}
+    </div>
+</div>

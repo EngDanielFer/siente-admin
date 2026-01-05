@@ -40,10 +40,8 @@
                 <th scope="col">Producto</th>
                 <th scope="col">ID de stock</th>
                 <th scope="col">Precio total insumos</th>
-                <th scope="col">Ganancia total al por mayor</th>
-                <th scope="col">Ganancia total al detal</th>
-                <th scope="col">Precio total al por mayor</th>
-                <th scope="col">Precio total al detal</th>
+                <th scope="col">Ganancia total</th>
+                <th scope="col">Precio total</th>
             </tr>
         </thead>
         <tbody>
@@ -53,11 +51,16 @@
                 <td>{{ ganancia.nombre_producto }}</td>
                 <td>{{ ganancia.id_producto_stock }}</td>
                 <td>{{ ganancia.precio_insumos_total}}</td>
-                <td>{{ ganancia.ganancia_total_por_mayor }}</td>
-                <td>{{ ganancia.ganancia_total_detal }}</td>
-                <td>{{ ganancia.precio_total_por_mayor }}</td>
-                <td>{{ ganancia.precio_total_detal }}</td>
+                <td>{{ ganancia.ganancia_total }}</td>
+                <td>{{ ganancia.precio_total }}</td>
             </tr>
         </tbody>
     </table>
+    <div *ngIf="!loading" class="alert alert-success mt-3">
+        <strong>Total ventas:</strong>
+        {{ totalVentas | currency:'COP':'symbol':'1.2-2' }}
+        <hr>
+        <strong>Total de ganancias:</strong>
+        {{ totalGanancias | currency:'COP':'symbol':'1.2-2' }}
+    </div>
 </div>

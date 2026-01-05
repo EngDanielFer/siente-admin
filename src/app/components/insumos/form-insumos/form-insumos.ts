@@ -66,6 +66,7 @@ export class FormInsumos implements OnInit, OnDestroy {
         next: (res) => {
           console.log("Se ha actualizado el insumo: ", res.id);
           this.limpiarFormulario();
+          this.mostrarFormulario = false;
           this.sharedInsumoService.notificarCambios();
         },
         error: (error) => {

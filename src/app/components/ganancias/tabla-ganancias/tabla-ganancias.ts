@@ -20,6 +20,9 @@ export class TablaGanancias implements OnInit {
 
   loading: boolean = false;
 
+  totalVentas: number = 0;
+  totalGanancias: number = 0;
+
   constructor(
     private gananciasService: GananciasService
   ) { }
@@ -33,6 +36,8 @@ export class TablaGanancias implements OnInit {
     this.gananciasService.getGanancias().subscribe({
       next: (data) => {
         this.ganancias = data;
+        this.calcularTotalVentas();
+        this.calcularTotalGanancias();
         this.calcularPaginacion();
         console.log(this.ganancias);
         this.loading= false;
@@ -76,6 +81,19 @@ export class TablaGanancias implements OnInit {
 
   get numPaginas(): number[] {
     return Array.from({ length: this.paginasTotales }, (_, i) => i + 1);
+  }
+
+  calcularTotalVentas() {
+    this.totalVentas = this.ganancias.reduce(
+      (total, item) => total + Number(item.precio_total), 0
+    );
+  }
+
+  calcularTotalGanancias() {
+    this.totalGanancias = this.ganancias.reduce(
+      (total, item) => total + Number(item.ganancia_total),
+      0
+    );
   }
 
 }
