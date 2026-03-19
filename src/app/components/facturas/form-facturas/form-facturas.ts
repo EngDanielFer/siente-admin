@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FacturasService } from '../../../services/facturas.service';
+import { SharedFacturaService } from '../../../services/shared/shared-factura.service';
 import { CommonModule } from '@angular/common';
 import { ProductosInterface } from '../../../interfaces/productos.interface';
 import { ProductosService } from '../../../services/productos.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-form-facturas',
@@ -11,18 +13,64 @@ import { ProductosService } from '../../../services/productos.service';
   templateUrl: './form-facturas.html',
   styleUrl: './form-facturas.css',
 })
-export class FormFacturas implements OnInit {
+export class FormFacturas implements OnInit, OnDestroy {
 
   facturaForm!: FormGroup;
   resultado: any | null = null;
   productosDisponibles: ProductosInterface[] = [];
 
+  mostrarFormulario: boolean = false;
+
+  private subscription: Subscription = new Subscription();
+
   readonly ENVIO_MAYORISTA = 12000;
+
+  readonly COLOMBIA_DATA: Record<string, string[]> = {
+    'Amazonas': ['Leticia', 'Puerto Nariño'],
+    'Antioquia': ['Medellín', 'Bello', 'Itagüí', 'Envigado', 'Apartadó', 'Turbo', 'Rionegro', 'Caucasia'],
+    'Arauca': ['Arauca', 'Saravena', 'Tame'],
+    'Atlántico': ['Barranquilla', 'Soledad', 'Malambo', 'Sabanalarga'],
+    'Bolívar': ['Cartagena', 'Magangué', 'El Carmen de Bolívar'],
+    'Boyacá': ['Tunja', 'Duitama', 'Sogamoso', 'Chiquinquirá'],
+    'Caldas': ['Manizales', 'Villamaría', 'La Dorada', 'Chinchiná'],
+    'Caquetá': ['Florencia', 'San Vicente del Caguán'],
+    'Casanare': ['Yopal', 'Aguazul', 'Villanueva'],
+    'Cauca': ['Popayán', 'Santander de Quilichao', 'Puerto Tejada'],
+    'Cesar': ['Valledupar', 'Aguachica', 'Codazzi'],
+    'Chocó': ['Quibdó', 'Istmina', 'Tumaco'],
+    'Córdoba': ['Montería', 'Lorica', 'Cereté', 'Sahagún'],
+    'Cundinamarca': ['Bogotá D.C.', 'Soacha', 'Fusagasugá', 'Facatativá', 'Zipaquirá', 'Chía', 'Mosquera'],
+    'Guainía': ['Inírida'],
+    'Guaviare': ['San José del Guaviare'],
+    'Huila': ['Neiva', 'Pitalito', 'Garzón'],
+    'La Guajira': ['Riohacha', 'Maicao', 'Uribia'],
+    'Magdalena': ['Santa Marta', 'Ciénaga', 'Fundación'],
+    'Meta': ['Villavicencio', 'Acacías', 'Granada'],
+    'Nariño': ['Pasto', 'Tumaco', 'Ipiales', 'Túquerres'],
+    'Norte de Santander': ['Cúcuta', 'Ocaña', 'Pamplona', 'Villa del Rosario'],
+    'Putumayo': ['Mocoa', 'Puerto Asís', 'Orito'],
+    'Quindío': ['Armenia', 'Calarcá', 'Montenegro', 'Quimbaya'],
+    'Risaralda': ['Pereira', 'Dosquebradas', 'Santa Rosa de Cabal'],
+    'San Andrés y Providencia': ['San Andrés', 'Providencia'],
+    'Santander': ['Bucaramanga', 'Floridablanca', 'Girón', 'Piedecuesta', 'Barrancabermeja'],
+    'Sucre': ['Sincelejo', 'Corozal', 'Sampués'],
+    'Tolima': ['Ibagué', 'Espinal', 'Melgar', 'Honda'],
+    'Valle del Cauca': ['Cali', 'Buenaventura', 'Palmira', 'Tuluá', 'Buga', 'Cartago'],
+    'Vaupés': ['Mitú'],
+    'Vichada': ['Puerto Carreño'],
+  };
+
+  get departamentos(): string[] {
+    return Object.keys(this.COLOMBIA_DATA).sort();
+  }
+
+  ciudadesFiltradas: string[] = [];
 
   constructor(
     private fb: FormBuilder,
     private facturasService: FacturasService,
-    private productosService: ProductosService
+    private productosService: ProductosService,
+    private sharedFacturasService: SharedFacturaService
   ) {
     this.facturaForm = this.fb.group({
       datosCliente: this.fb.group({
@@ -43,12 +91,11 @@ export class FormFacturas implements OnInit {
       tipo_precio: ['mayor']
     });
 
-    this.agregarProducto();
     this.cargarProductos();
 
     this.facturaForm.patchValue({
-      precio_envio: this.ENVIO_MAYORISTA
-    })
+      precio_envio: this.ENVIO_MAYORISTA,
+    });
   }
 
   ngOnInit(): void {
@@ -63,6 +110,16 @@ export class FormFacturas implements OnInit {
       .subscribe(() => {
         this.calcularSubtotal();
       });
+
+    this.subscription.add(
+      this.sharedFacturasService.mostrarFormFactura$.subscribe(mostrar => {
+        this.mostrarFormulario = mostrar;
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   get productos(): FormArray {
@@ -128,5 +185,26 @@ export class FormFacturas implements OnInit {
         next: res => this.resultado = res,
         error: err => alert(err.error?.message || 'Error al crear factura')
       });
+  }
+
+  toggleFormulario() {
+    this.mostrarFormulario = !this.mostrarFormulario;
+    this.sharedFacturasService.setMostrarFormFactura(this.mostrarFormulario);
+
+    if (!this.mostrarFormulario) {
+      this.facturaForm.reset();
+      this.productos.clear();
+      this.facturaForm.patchValue({
+        precio_envio: this.ENVIO_MAYORISTA,
+        tipo_precio: 'mayor'
+      });
+      this.resultado = null;
+    }
+  }
+
+  onDepartamentoChange(): void {
+    const depto = this.facturaForm.get('datosCliente.region_cliente')?.value;
+    this.ciudadesFiltradas = this.COLOMBIA_DATA[depto] ?? [];
+    this.facturaForm.get('datosCliente.ciudad_cliente')?.setValue('');
   }
 }
