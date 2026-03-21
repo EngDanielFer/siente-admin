@@ -17,9 +17,12 @@
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "assets": [
+              "src/favicon.ico",
+              "src/assets",
               {
-                "glob": "**/*",
-                "input": "public"
+                "glob": ".htaccess",
+                "input": "public",
+                "output": "/"
               }
             ],
             "styles": [
@@ -48,7 +51,10 @@
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "fileReplacements": [
+                
+              ]
             }
           },
           "defaultConfiguration": "production"

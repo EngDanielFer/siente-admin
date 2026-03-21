@@ -3,13 +3,14 @@ import { Observable } from 'rxjs';
 import { FacturasInterface } from '../interfaces/facturas.interface';
 import { HttpClient } from '@angular/common/http';
 import { FacturaCompletaInterface } from '../interfaces/factura-completa.interface';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FacturasService {
 
-  private apiUrl = 'http://localhost:8000/api/siente/facturas';
+  private readonly apiUrl = `${environment.apiUrl}/api/siente/facturas`;
 
   constructor(private http: HttpClient) {}
 

@@ -1,0 +1,25 @@
+.login-wrapper {
+    background-color: #f8f9fa;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 420px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.nav-pills .nav-link {
+    color: #6c757d;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    padding: 0.4rem 0.75rem;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #fff;
+    color: #212529;
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}

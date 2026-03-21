@@ -1,4 +1,4 @@
-<div class="sidebar-wrapper">
+<!-- <div class="sidebar-wrapper">
     <nav [class.collapsed]="isCollapsed" class="sidebar bg-dark" id="sidebar">
         <div class="sidebar-header p-3">
             <h4 class="text-white mb-0" *ngIf="!isCollapsed">Admin Siente</h4>
@@ -18,4 +18,44 @@
     <button class="btn btn-dark toggle-btn" (click)="toggleSidebar()">
         <i [class]="isCollapsed ? 'bi bi-chevron-right' : 'bi bi-chevron-left'"></i>
     </button>
-</div>
+</div> -->
+<nav class="sidebar" [class.collapsed]="isCollapsed">
+    <div class="sidebar-header d-flex align-items-center justify-content-between px-3 py-3">
+        @if (!isCollapsed) {
+        <span class="sidebar-brand fw-semibold">Siente</span>
+        }
+        <button class="btn btn-link p-0 text-white" (click)="toggleSidebar()" title="Colapsar menú">
+            <i class="bi" [class.bi-layout-sidebar-reverse]="!isCollapsed" [class.bi-layout-sidebar]="isCollapsed"></i>
+        </button>
+    </div>
+
+    <ul class="nav flex-column px-2 flex-grow-1">
+        @for (item of menuItems; track item.route) {
+        <li class="nav-item mb-1">
+            <a class="nav-link sidebar-link d-flex align-items-center gap-2 rounded" [routerLink]="item.route"
+                routerLinkActive="active">
+                <i class="bi {{ item.icon }} sidebar-icon"></i>
+                @if (!isCollapsed) {
+                <span>{{ item.label }}</span>
+                }
+            </a>
+        </li>
+        }
+    </ul>
+
+    <div class="sidebar-footer px-3 py-3 border-top border-white border-opacity-25">
+        @if (!isCollapsed) {
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="bi bi-person-circle sidebar-icon"></i>
+            <span class="small text-white text-opacity-75 text-truncate">
+                {{ authService.getUsername() }}
+            </span>
+        </div>
+        }
+        <button class="btn btn-sm btn-outline-light w-100 d-flex align-items-center justify-content-center gap-2"
+            (click)="logout()" title="Cerrar sesión">
+            <i class="bi bi-box-arrow-left"></i>
+            @if (!isCollapsed) { <span>Cerrar sesión</span> }
+        </button>
+    </div>
+</nav>

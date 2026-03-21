@@ -7,9 +7,13 @@ import { Subscription } from 'rxjs';
 import { SharedProductoService } from '../../../services/shared/shared-producto.service';
 import { CostosFijosProductos } from './costos-fijos-productos/costos-fijos-productos';
 import { InsumosProductos } from './insumos-productos/insumos-productos';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ConfirmDeleteDialog } from '../../insumos/lista-insumos/confirm-delete-dialog/confirm-delete-dialog';
 
 @Component({
   selector: 'app-lista-productos',
+  standalone: true,
   imports: [CommonModule, CostosFijosProductos, InsumosProductos],
   templateUrl: './lista-productos.html',
   styleUrl: './lista-productos.css',
@@ -35,100 +39,104 @@ export class ListaProductos implements OnInit, OnDestroy {
   constructor(
     private productosService: ProductosService,
     private sanitizer: DomSanitizer,
-    private sharedProductoService: SharedProductoService
+    private sharedProductoService: SharedProductoService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) { }
+
+  ngOnInit(): void {
+    this.listarProductos();
+    this.subscription.add(
+      this.sharedProductoService.cambio$.subscribe(() => this.listarProductos())
+    )
+  }
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
   }
 
-  ngOnInit(): void {
-    this.listarProductos();
-
-    this.subscription = this.sharedProductoService.cambio$.subscribe(() => {
-      this.listarProductos();
-    })
-  }
-
-  listarProductos() {
+  listarProductos(): void {
     this.loading = true;
     this.productosService.getProductos().subscribe({
-      next: (data) => {
+      next: data => {
         this.productos = data;
         this.calcularPaginacion();
-        console.log(this.productos);
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error al obtener productos: ', error);
+        this.snackBar.open('Error al cargar los productos', 'Cerrar', { duration: 4000 });
         this.loading = false;
       }
     });
   }
 
-  editarProducto(id: number) {
+  editarProducto(id: number): void {
     this.loadingDetalles[id] = true;
 
     this.productosService.getProductoCompleto(id).subscribe({
-      next: (producto) => {
+      next: producto => {
         this.sharedProductoService.seleccionarProducto(producto);
         this.loadingDetalles[id] = false;
         window.scrollTo({ top: 0, behavior: 'smooth' });
       },
-      error: (error) => {
-        console.error('Error al cargar detalles del producto:', error);
-        alert('Error al cargar los detalles del producto');
+      error: () => {
+        this.snackBar.open('Error al cargar el producto', 'Cerrar', { duration: 4000 });
         this.loadingDetalles[id] = false;
       }
     });
   }
 
-  verCostosFijos(id: number) {
+  verCostosFijos(id: number): void {
     this.productoSelecId = id;
     this.mostrarCostosFijos = true;
     this.mostrarInsumos = false;
   }
 
-  verInsumos(id: number) {
+  verInsumos(id: number): void {
     this.productoSelecId = id;
     this.mostrarInsumos = true;
     this.mostrarCostosFijos = false;
   }
 
-  cerrarModal() {
+  cerrarModal(): void {
     this.mostrarCostosFijos = false;
     this.mostrarInsumos = false;
     this.productoSelecId = null;
   }
 
-  eliminarProducto(id: number): void {
+  confirmarEliminar(id: number): void {
     const producto = this.productos.find(p => p.id === id);
-    const mensaje = `¿Está seguro de eliminar este producto: ${producto?.nombre_producto}? Esta acción no se puede deshacer`;
-    if (confirm(mensaje)) {
-      this.loadingDetalles[id] = true;
+    const dialogRef = this.dialog.open(ConfirmDeleteDialog, {
+      width: '380px',
+      data: { nombre: producto?.nombre_producto ?? `ID ${id}` }
+    });
 
-      this.productosService.deleteProducto(id).subscribe({
-        next: () => {
-          alert("Se ha eliminado el producto");
-          this.listarProductos();
-          this.sharedProductoService.notificarCambios();
-          this.loadingDetalles[id] = false;
-        },
-        error: (error) => {
-          console.error("Ha ocurrido un error al eliminar el producto:", error);
-          let mensaje = "Ha ocurrido un error al eliminar el producto";
+    dialogRef.afterClosed().subscribe(confirmado => {
+      if (confirmado) this.eliminarProducto(id);
+    });
+  }
 
-          if (error.status === 404) {
-            mensaje = 'El producto no existe';
-          } else if (error.status === 500) {
-            mensaje = 'Error del servidor al eliminar el producto';
-          }
+  private eliminarProducto(id: number): void {
+    this.loadingDetalles[id] = true;
 
-          alert(mensaje);
-          this.loadingDetalles[id] = false;
-        }
-      })
-    }
+    this.productosService.deleteProducto(id).subscribe({
+      next: () => {
+        this.snackBar.open('Producto eliminado', 'Cerrar', {
+          duration: 3000,
+          panelClass: ['snack-success']
+        });
+        this.listarProductos();
+        this.sharedProductoService.notificarCambios();
+        this.loadingDetalles[id] = false;
+      },
+      error: err => {
+        const msg = err.status === 404
+          ? 'El producto no existe'
+          : 'Error al eliminar el producto';
+        this.snackBar.open(msg, 'Cerrar', { duration: 4000, panelClass: ['snack-error'] });
+        this.loadingDetalles[id] = false;
+      }
+    })
   }
 
   getImageUrl(imagenProducto: any): SafeUrl {
@@ -144,25 +152,24 @@ export class ListaProductos implements OnInit, OnDestroy {
     }
 
     if (imagenProducto instanceof Blob) {
-      const objectURL = URL.createObjectURL(imagenProducto);
-      return this.sanitizer.bypassSecurityTrustUrl(objectURL);
+      return this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(imagenProducto));
     }
 
     return '';
   }
 
-  calcularPaginacion() {
+  calcularPaginacion(): void {
     this.paginasTotales = Math.ceil(this.productos.length / this.itemProductosPorPagina);
     this.actualizarProductosPorPagina();
   }
 
-  actualizarProductosPorPagina() {
+  actualizarProductosPorPagina(): void {
     const inicio = (this.paginaActual - 1) * this.itemProductosPorPagina;
     const fin = inicio + this.itemProductosPorPagina;
     this.productosPorPagina = this.productos.slice(inicio, fin);
   }
 
-  cambiarPagina(paginaNueva: number) {
+  cambiarPagina(paginaNueva: number): void {
     if (paginaNueva >= 1 && paginaNueva <= this.paginasTotales) {
       this.paginaActual = paginaNueva;
       this.actualizarProductosPorPagina();
@@ -173,11 +180,11 @@ export class ListaProductos implements OnInit, OnDestroy {
     return Math.min(this.paginaActual * this.itemProductosPorPagina, this.productos.length);
   }
 
-  paginaAnterior() {
+  paginaAnterior(): void {
     this.cambiarPagina(this.paginaActual - 1);
   }
 
-  paginaSiguiente() {
+  paginaSiguiente(): void {
     this.cambiarPagina(this.paginaActual + 1);
   }
 

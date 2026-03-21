@@ -3,9 +3,11 @@ import { FacturasInterface } from '../../../interfaces/facturas.interface';
 import { FacturaCompletaInterface } from '../../../interfaces/factura-completa.interface';
 import { FacturasService } from '../../../services/facturas.service';
 import { CommonModule } from '@angular/common';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-lista-facturas',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './lista-facturas.html',
   styleUrl: './lista-facturas.css',
@@ -26,7 +28,8 @@ export class ListaFacturas implements OnInit {
   loadingDetalle = false;
 
   constructor(
-    private facturasService: FacturasService
+    private facturasService: FacturasService,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -42,7 +45,9 @@ export class ListaFacturas implements OnInit {
         this.loading = false;
       },
       error: err => {
-        console.error('Error al cargar facturas', err);
+        this.snackBar.open('Error al cargar las facturas', 'Cerrar', {
+          duration: 4000
+        });
         this.loading = false;
       }
     });
@@ -87,7 +92,9 @@ export class ListaFacturas implements OnInit {
         this.loadingDetalle = false;
       },
       error: err => {
-        console.error('Error al obtener factura', err);
+        this.snackBar.open('Error al obtener el detalle de la factura', 'Cerrar', {
+          duration: 4000
+        });
         this.loadingDetalle = false;
       }
     });

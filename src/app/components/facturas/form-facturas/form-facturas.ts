@@ -6,9 +6,11 @@ import { CommonModule } from '@angular/common';
 import { ProductosInterface } from '../../../interfaces/productos.interface';
 import { ProductosService } from '../../../services/productos.service';
 import { Subscription } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-form-facturas',
+  standalone: true,
   imports: [FormsModule, ReactiveFormsModule, CommonModule],
   templateUrl: './form-facturas.html',
   styleUrl: './form-facturas.css',
@@ -19,7 +21,8 @@ export class FormFacturas implements OnInit, OnDestroy {
   resultado: any | null = null;
   productosDisponibles: ProductosInterface[] = [];
 
-  mostrarFormulario: boolean = false;
+  mostrarFormulario = false;
+  loading = false;
 
   private subscription: Subscription = new Subscription();
 
@@ -70,7 +73,8 @@ export class FormFacturas implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private facturasService: FacturasService,
     private productosService: ProductosService,
-    private sharedFacturasService: SharedFacturaService
+    private sharedFacturasService: SharedFacturaService,
+    private snackBar: MatSnackBar
   ) {
     this.facturaForm = this.fb.group({
       datosCliente: this.fb.group({
@@ -86,16 +90,12 @@ export class FormFacturas implements OnInit, OnDestroy {
       }),
       productos: this.fb.array([]),
       subtotal: [{ value: 0, disabled: true }],
-      precio_envio: [0, [Validators.required, Validators.min(0)]],
+      precio_envio: [this.ENVIO_MAYORISTA, [Validators.required, Validators.min(0)]],
       metodo_pago: ['', Validators.required],
       tipo_precio: ['mayor']
     });
 
     this.cargarProductos();
-
-    this.facturaForm.patchValue({
-      precio_envio: this.ENVIO_MAYORISTA,
-    });
   }
 
   ngOnInit(): void {
@@ -149,8 +149,8 @@ export class FormFacturas implements OnInit, OnDestroy {
   }
 
   calcularSubtotal(): void {
-    let subtotal = 0;
     const tipoPrecio = this.facturaForm.get('tipo_precio')?.value;
+    let subtotal = 0;
 
     this.productos.controls.forEach(control => {
       const idProducto = control.get('id_producto')?.value;
@@ -163,12 +163,12 @@ export class FormFacturas implements OnInit, OnDestroy {
 
       if (!producto) return;
 
-      const precioUnitario =
+      const precio =
         tipoPrecio === 'detal'
           ? producto.precio_detal
           : producto.precio_por_mayor;
 
-      subtotal += precioUnitario * cantidad;
+      subtotal += precio * cantidad;
     });
 
     this.facturaForm.get('subtotal')?.setValue(subtotal, { emitEvent: false });
@@ -180,10 +180,25 @@ export class FormFacturas implements OnInit, OnDestroy {
       return;
     }
 
+    this.loading = true;
     this.facturasService.crearFactura(this.facturaForm.value)
       .subscribe({
-        next: res => this.resultado = res,
-        error: err => alert(err.error?.message || 'Error al crear factura')
+        next: res => {
+          this.resultado = res;
+          this.loading = false;
+          this.snackBar.open('Se ha creado correctamente la factura', 'Cerrar', {
+            duration: 3000,
+            panelClass: ['snack-success']
+          });
+        },
+        error: err => {
+          this.loading = false;
+          const msg = err.error?.message || 'Error al crear factura';
+          this.snackBar.open(msg, 'Cerrar', {
+            duration: 5000,
+            panelClass: ['snack-error']
+          });
+        }
       });
   }
 

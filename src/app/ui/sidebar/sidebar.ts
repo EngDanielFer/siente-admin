@@ -1,27 +1,22 @@
 import { CommonModule, NgFor, NgIf } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from "@angular/router";
 import { SidebarService } from '../../services/sidebar.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [NgIf, NgFor, CommonModule, RouterLink, RouterLinkActive],
+  standalone: true,
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css',
 })
 export class Sidebar {
 
+  private sidebarService = inject(SidebarService);
+  protected authService = inject(AuthService);
+
   isCollapsed = false;
-
-  constructor(private sidebarService: SidebarService) {
-    this.sidebarService.collapsed$.subscribe(collapsed => {
-      this.isCollapsed = collapsed;
-    });
-  }
-
-  toggleSidebar() {
-    this.sidebarService.toggleSidebar();
-  }
 
   menuItems = [
     { icon: 'bi-puzzle', label: 'Insumos', route: '/insumos' },
@@ -30,5 +25,19 @@ export class Sidebar {
     { icon: 'bi-currency-dollar', label: 'Ganancias', route: '/ganancias' },
     { icon: 'bi-receipt', label: 'Facturas', route: '/facturas' }
   ]
+
+  constructor() {
+    this.sidebarService.collapsed$.subscribe(c => {
+      this.isCollapsed = c;
+    });
+  }
+
+  toggleSidebar() {
+    this.sidebarService.toggleSidebar();
+  }
+
+  logout() {
+    this.authService.logout();
+  }
 
 }

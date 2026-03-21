@@ -5,41 +5,36 @@ import { Subscription } from 'rxjs';
 import { SharedInsumoService } from '../../../services/shared/shared-insumo.service';
 import { CommonModule } from '@angular/common';
 import { InsumosService } from '../../../services/insumos.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-form-insumos',
+  standalone: true,
   imports: [FormsModule, ReactiveFormsModule, CommonModule],
   templateUrl: './form-insumos.html',
   styleUrl: './form-insumos.css',
 })
 export class FormInsumos implements OnInit, OnDestroy {
 
-  insumo: InsumosInterface = {
-    id: 0,
-    nombre_insumo: '',
-    cantidad_insumo_total: 0,
-    cantidad_insumo_restante: 0,
-    proveedor_insumo: '',
-    precio_insumo: 0,
-    precio_por_g_ml: 0,
-    estado_insumo: ''
-  }
+  insumo: InsumosInterface = this.insumoVacio();
 
-  mostrarFormulario: boolean = false;
+  mostrarFormulario = false;
 
-  modoEdicion: boolean = false;
-  private subscription: Subscription = new Subscription();
+  modoEdicion = false;
+  loading = false;
+  private subscription = new Subscription();
 
   constructor(
     private insumosService: InsumosService,
-    private sharedInsumoService: SharedInsumoService
+    private sharedInsumoService: SharedInsumoService,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
     this.subscription = this.sharedInsumoService.insumoAEditar$.subscribe(
-      (insumo) => {
+      insumo => {
         if (insumo) {
-          this.insumo = {...insumo};
+          this.insumo = { ...insumo };
           this.modoEdicion = true;
         } else {
           this.limpiarFormulario();
@@ -59,51 +54,61 @@ export class FormInsumos implements OnInit, OnDestroy {
   }
 
   onSubmit() {
-    if (this.modoEdicion) {
-      console.log('Actualizando insumo: ', this.insumo);
+    this.loading = true;
 
+    if (this.modoEdicion) {
       this.insumosService.updateInsumo(this.insumo.id!, this.insumo).subscribe({
-        next: (res) => {
-          console.log("Se ha actualizado el insumo: ", res.id);
+        next: () => {
+          this.snackBar.open('Insumo actualizado correctamente', 'Cerrar', {
+            duration: 3000,
+            panelClass: ['snack-success']
+          });
           this.limpiarFormulario();
           this.mostrarFormulario = false;
           this.sharedInsumoService.notificarCambios();
+          this.loading = false;
         },
-        error: (error) => {
-          console.error('Error al actualizar insumo: ', error);
+        error: err => {
+          const msg = err.error?.mensaje || 'Error al actualizar el insumo';
+          this.snackBar.open(msg, 'Cerrar', {
+            duration: 4000,
+            panelClass: ['snack-error']
+          });
+          this.loading = false;
         }
       });
     } else {
-      const nuevoInsumo = {
+      const nuevoInsumo: InsumosInterface = {
         nombre_insumo: this.insumo.nombre_insumo,
         cantidad_insumo_total: this.insumo.cantidad_insumo_total,
         proveedor_insumo: this.insumo.proveedor_insumo,
         precio_insumo: this.insumo.precio_insumo
       };
-      
-      console.log('Creando insumo: ', this.insumo);
-      this.insumosService.createInsumo(nuevoInsumo).subscribe(
-        res => {
-          console.log("Se ha creado el insumo con el id: ", res.id);
+
+      this.insumosService.createInsumo(nuevoInsumo).subscribe({
+        next: res => {
+          this.snackBar.open(`Insumo "${res.nombre_insumo}" creado correctamente`, 'Cerrar', {
+            duration: 3000,
+            panelClass: ['snack-success']
+          });
           this.limpiarFormulario();
           this.sharedInsumoService.notificarCambios();
+          this.loading = false;
         },
-        error => console.error("Error al crear insumo: ", error)
-      )
+        error: err => {
+          const msg = err.error?.mensaje || 'Error al crear el insumo';
+          this.snackBar.open(msg, 'Cerrar', {
+            duration: 4000,
+            panelClass: ['snack-error']
+          });
+          this.loading = false;
+        }
+      });
     }
   }
 
   limpiarFormulario() {
-    this.insumo = {
-      id: 0,
-      nombre_insumo: '',
-      cantidad_insumo_total: 0,
-      cantidad_insumo_restante: 0,
-      proveedor_insumo: '',
-      precio_insumo: 0,
-      precio_por_g_ml: 0,
-      estado_insumo: ''
-    };
+    this.insumo = this.insumoVacio();
     this.modoEdicion = false;
     this.sharedInsumoService.clearInsumoAEditar();
   }
@@ -114,6 +119,18 @@ export class FormInsumos implements OnInit, OnDestroy {
 
     if (!this.mostrarFormulario) {
       this.limpiarFormulario();
+    }
+  }
+
+  private insumoVacio(): InsumosInterface {
+    return {
+      nombre_insumo: '',
+      cantidad_insumo_total: 0,
+      cantidad_insumo_restante: 0,
+      proveedor_insumo: '',
+      precio_insumo: 0,
+      precio_por_g_ml: 0,
+      estado_insumo: ''
     }
   }
 }

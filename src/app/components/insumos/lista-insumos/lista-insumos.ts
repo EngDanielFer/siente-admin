@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { InsumosService } from '../../../services/insumos.service';
 import { CommonModule } from '@angular/common';
 import { InsumosInterface } from '../../../interfaces/insumos.interface';
@@ -6,15 +6,16 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDeleteDialog } from './confirm-delete-dialog/confirm-delete-dialog';
 import { SharedInsumoService } from '../../../services/shared/shared-insumo.service';
 import { Subscription } from 'rxjs';
-
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-lista-insumos',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './lista-insumos.html',
   styleUrl: './lista-insumos.css',
 })
-export class ListaInsumos implements OnInit {
+export class ListaInsumos implements OnInit, OnDestroy {
 
   insumos: InsumosInterface[] = [];
   insumosPorPagina: InsumosInterface[] = [];
@@ -30,7 +31,8 @@ export class ListaInsumos implements OnInit {
   constructor(
     private insumosService: InsumosService,
     private dialog: MatDialog,
-    private sharedInsumoService: SharedInsumoService
+    private sharedInsumoService: SharedInsumoService,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -41,49 +43,77 @@ export class ListaInsumos implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
   listarInsumos() {
     this.loading = true;
     this.insumosService.getInsumos().subscribe({
       next: (data) => {
         this.insumos = data;
         this.calcularPaginacion();
-        console.log(this.insumos);
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error al obtener insumos: ', error);
+        this.mostrarError('Error al cargar los insumos');
         this.loading = false;
       }
     })
   }
-  
+
   editarInsumo(insumo: InsumosInterface) {
     this.sharedInsumoService.setInsumoAEditar(insumo);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  borrarInsumo(id: number) {
+  confirmarBorrado(insumo: InsumosInterface): void {
+    if (insumo.id === undefined) {
+      this.mostrarError('No se puede eliminar, el insumo no tiene ID');
+      return;
+    }
+
+    const id = insumo.id;
+
     const dialogRef = this.dialog.open(ConfirmDeleteDialog, {
-      width: '400px',
-      data: {
-        titulo: 'Confirmar eliminación',
-        mensaje: '¿Estás seguro de que deseas eliminar este insumo? Esta acción no se puede deshacer'
-      }
+      width: '380px',
+      data: { nombre: insumo.nombre_insumo }
     });
 
-    dialogRef.afterClosed().subscribe(res => {
-      if (res) {
-        this.insumosService.deleteInsumo(id).subscribe(
-          () => {
-            this.listarInsumos();
-          },
-          error => {
-            console.error('Error al eliminar insumo: ', error);
-          }
-        )
+    dialogRef.afterClosed().subscribe(confirmado => {
+      if (confirmado) this.borrarInsumo(id);
+    });
+  }
+
+  private borrarInsumo(id: number) {
+    this.insumosService.deleteInsumo(id).subscribe({
+      next: () => {
+        this.mostrarExito('Insumo eliminado correctamente');
+        this.listarInsumos();
+        this.sharedInsumoService.notificarCambios();
+      },
+      error: err => {
+        const msg = err.status === 404
+          ? 'El insumo no existe'
+          : 'Error al eliminar el insumo';
+        this.mostrarError(msg);
       }
     })
+  }
 
+
+  private mostrarExito(msg: string): void {
+    this.snackBar.open(msg, 'Cerrar', {
+      duration: 3000,
+      panelClass: ['snack-success']
+    });
+  }
+
+  private mostrarError(msg: string): void {
+    this.snackBar.open(msg, 'Cerrar', {
+      duration: 4000,
+      panelClass: ['snack-error']
+    });
   }
 
   calcularPaginacion() {
