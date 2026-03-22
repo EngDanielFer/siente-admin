@@ -8,7 +8,7 @@
             </p>
         </div>
 
-        <div class="nav nav-pills nav-fill mb-4 bg-light rounded p-1">
+        <!-- <div class="nav nav-pills nav-fill mb-4 bg-light rounded p-1">
             <button class="nav-link" [class.active]="modo === 'login'" type="button" (click)="cambiarModo('login')">
                 Iniciar sesión
             </button>
@@ -16,7 +16,7 @@
                 (click)="cambiarModo('registro')">
                 Crear cuenta
             </button>
-        </div>
+        </div> -->
 
         @if (modo === 'login') {
         <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
