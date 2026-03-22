@@ -1,4 +1,4 @@
 export const environment = {
     production: false,
-    apiUrl: 'https://protoapisiente.onrender.com'
+    apiUrl: 'https://darkviolet-chamois-503222.hostingersite.com'
 };
