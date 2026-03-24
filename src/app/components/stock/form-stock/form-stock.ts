@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { StockService } from '../../../services/stock.service';
 import { Subscription } from 'rxjs';
 import { SharedStockService } from '../../../services/shared/shared-stock.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-form-stock',
@@ -46,7 +47,7 @@ export class FormStock implements OnInit {
 
   cargarProductos(): void {
     this.loadingProductos = true;
-    this.httpClient.get<ProductosInterface[]>('http://localhost:8000/api/siente/productos')
+    this.httpClient.get<ProductosInterface[]>(`${environment.apiUrl}/api/siente/productos`)
       .subscribe({
         next: (response) => {
           this.listaProductos = response;
