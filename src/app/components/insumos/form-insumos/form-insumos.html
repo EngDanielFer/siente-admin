@@ -10,7 +10,8 @@
     <div class="alert alert-info mb-3" *ngIf="modoEdicion">
         <i class="bi bi-info-circle me-1"></i>
         En modo edición, el <strong>proveedor</strong> y el <strong>precio</strong> no se pueden modificar directamente.
-        El precio total se recalcula automáticamente al cambiar la cantidad.
+        El precio total se recalcula automáticamente al cambiar la cantidad, o puedes
+        <strong>editar el precio manualmente</strong> si cambió el costo del insumo.
     </div>
 
     <form (ngSubmit)="onSubmit()" class="row g-3">
@@ -36,19 +37,39 @@
         <div class="mb-3 col-md-6">
             <label for="precioInsumo" class="form-label">
                 Precio
-                <span *ngIf="modoEdicion" class="badge bg-secondary ms-1">Calculado automáticamente</span>
+                <span *ngIf="modoEdicion && !editandoPrecioManual" class="badge bg-secondary ms-1">Calculado
+                    automáticamente</span>
+
+                <span *ngIf="modoEdicion && editandoPrecioManual" class="badge bg-warning text-dark ms-1">
+                    Edición manual
+                </span>
             </label>
             <div class="input-group">
                 <div class="input-group-text">$</div>
                 <input type="number" class="form-control" id="precioInsumo" name="precioInsumo"
-                    [(ngModel)]="insumo.precio_insumo" [disabled]="modoEdicion" [class.bg-light]="modoEdicion"
+                    [(ngModel)]="insumo.precio_insumo" [disabled]="modoEdicion && !editandoPrecioManual"
+                    [class.bg-light]="modoEdicion && !editandoPrecioManual" (ngModelChange)="onPrecioManualChange()"
                     placeholder="Ingrese el precio" required>
+                <button *ngIf="modoEdicion" type="button" class="btn"
+                    [class.btn-outline-warning]="!editandoPrecioManual" [class.btn-warning]="editandoPrecioManual"
+                    (click)="toggleEdicionPrecio()"
+                    [title]="editandoPrecioManual ? 'Volver a cálcula automático' : 'Editar precio manualmente'">
+                    <i class="bi" [class.bi-pencil]="!editandoPrecioManual"
+                        [class.bi-arrow-counterclockwise]="editandoPrecioManual"></i>
+                </button>
             </div>
-            <div class="form-text text-muted" *ngIf="modoEdicion">
+            <div class="form-text text-muted" *ngIf="modoEdicion && !editandoPrecioManual">
                 Precio por g/ml: ${{ insumo.precio_por_g_ml | number:'1.4-4' }} ×
                 {{ insumo.cantidad_insumo_total || 0 }} =
                 <strong>${{ insumo.precio_insumo | number:'1.2-2' }}</strong>
             </div>
+            <div class="form-text text-warning" *ngIf="modoEdicion && editandoPrecioManual">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                El precio por g/ml se recalculará:
+                ${{ insumo.precio_insumo || 0 }} ÷ {{ insumo.cantidad_insumo_total || 1 }} =
+                <strong>${{ calcularPrecioPorUnidad() | number:'1.4-4' }}</strong>
+            </div>
+
         </div>
         <div class="col-12">
             <button type="submit" class="btn btn-primary" [disabled]="loading">

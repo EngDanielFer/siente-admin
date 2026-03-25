@@ -31,37 +31,39 @@
             </ul>
         </nav>
     </div>
-    <table *ngIf="!loading" class="table table-striped">
-        <thead>
-            <tr>
-                <th scope="col">ID de insumo</th>
-                <th scope="col">Nombre</th>
-                <th scope="col">Cantidad total</th>
-                <th scope="col">Cantidad restante</th>
-                <th scope="col">Proveedor</th>
-                <th scope="col">Precio</th>
-                <th scope="col">Precio por unidad (g o ml)</th>
-                <th scope="col">Disponibilidad</th>
-                <th scope="col">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let ins of insumosPorPagina">
-                <td>{{ ins.id }}</td>
-                <td>{{ ins.nombre_insumo }}</td>
-                <td>{{ ins.cantidad_insumo_total }}</td>
-                <td>{{ ins.cantidad_insumo_restante }}</td>
-                <td>{{ ins.proveedor_insumo }}</td>
-                <td>{{ ins.precio_insumo }}</td>
-                <td>{{ ins.precio_por_g_ml }}</td>
-                <td>{{ ins.estado_insumo }}</td>
-                <td>
-                    <button class="btn btn-primary btn-sm" (click)="editarInsumo(ins)">Actualizar</button>&nbsp;
-                    <button class="btn btn-danger btn-sm" (click)="confirmarBorrado(ins)">Eliminar</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table *ngIf="!loading" class="table table-striped table-hover align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">ID de insumo</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Cantidad total</th>
+                    <th scope="col">Cantidad restante</th>
+                    <th scope="col">Proveedor</th>
+                    <th scope="col">Precio</th>
+                    <th scope="col">Precio por unidad (g o ml)</th>
+                    <th scope="col">Disponibilidad</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let ins of insumosPorPagina">
+                    <td>{{ ins.id }}</td>
+                    <td>{{ ins.nombre_insumo }}</td>
+                    <td>{{ ins.cantidad_insumo_total }}</td>
+                    <td>{{ ins.cantidad_insumo_restante }}</td>
+                    <td>{{ ins.proveedor_insumo }}</td>
+                    <td>{{ ins.precio_insumo }}</td>
+                    <td>{{ ins.precio_por_g_ml }}</td>
+                    <td>{{ ins.estado_insumo }}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" (click)="editarInsumo(ins)">Actualizar</button>&nbsp;
+                        <button class="btn btn-danger btn-sm" (click)="confirmarBorrado(ins)">Eliminar</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
     <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
         <div>
             Mostrando {{ (paginaActual - 1) * itemInsumosPorPagina + 1 }} -

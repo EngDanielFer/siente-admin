@@ -22,6 +22,9 @@ export class FormInsumos implements OnInit, OnDestroy {
 
   modoEdicion = false;
   loading = false;
+
+  editandoPrecioManual = false;
+
   private subscription = new Subscription();
 
   constructor(
@@ -36,6 +39,7 @@ export class FormInsumos implements OnInit, OnDestroy {
         if (insumo) {
           this.insumo = { ...insumo };
           this.modoEdicion = true;
+          this.editandoPrecioManual = false;
           this.recalcularPrecio();
         } else {
           this.limpiarFormulario();
@@ -54,9 +58,24 @@ export class FormInsumos implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
-  onCantidadChange(): void {
-    if (this.modoEdicion) {
+  toggleEdicionPrecio(): void {
+    this.editandoPrecioManual = !this.editandoPrecioManual;
+
+    if (!this.editandoPrecioManual) {
       this.recalcularPrecio();
+    }
+  }
+
+  onCantidadChange(): void {
+    if (this.modoEdicion && !this.editandoPrecioManual) {
+      this.recalcularPrecio();
+    }
+  }
+
+  
+  onPrecioManualChange(): void {
+    if (this.editandoPrecioManual) {
+      this.insumo.precio_por_g_ml = this.calcularPrecioPorUnidad();
     }
   }
 
@@ -66,10 +85,20 @@ export class FormInsumos implements OnInit, OnDestroy {
     this.insumo.precio_insumo = precioUnitario * cantidad;
   }
 
+  calcularPrecioPorUnidad(): number {
+    const precio = this.insumo.precio_insumo ?? 0;
+    const cantidad = this.insumo.cantidad_insumo_total ?? 1;
+    return cantidad > 0 ? precio / cantidad : 0;
+  }
+
   onSubmit() {
     this.loading = true;
 
     if (this.modoEdicion) {
+      if (this.editandoPrecioManual) {
+        this.insumo.precio_por_g_ml = this.calcularPrecioPorUnidad();
+      }
+
       this.insumosService.updateInsumo(this.insumo.id!, this.insumo).subscribe({
         next: () => {
           this.snackBar.open('Insumo actualizado correctamente', 'Cerrar', {
@@ -123,6 +152,7 @@ export class FormInsumos implements OnInit, OnDestroy {
   limpiarFormulario() {
     this.insumo = this.insumoVacio();
     this.modoEdicion = false;
+    this.editandoPrecioManual = false;
     this.sharedInsumoService.clearInsumoAEditar();
   }
 
