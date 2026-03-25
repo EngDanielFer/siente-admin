@@ -67,23 +67,25 @@ export class FormProductos implements OnInit, OnDestroy {
       id: [null, [Validators.required, Validators.min(1)]],
       nombre_producto: ['', Validators.required],
       descripcion_producto: ['', Validators.required],
-      peso_producto: [0, [Validators.required, Validators.min(1)]],
+      peso_producto: [null, [Validators.required, Validators.min(1)]],
       imagen_producto: [null],
       insumos: this.formBuilder.array([]),
-      costo_luz: [0, [Validators.required, Validators.min(0)]],
-      costo_agua: [0, [Validators.required, Validators.min(0)]],
-      costo_gas: [0, [Validators.required, Validators.min(0)]],
-      costo_aseo: [0, [Validators.required, Validators.min(0)]],
-      costo_internet: [0, [Validators.required, Validators.min(0)]],
-      costo_mano_obra: [0, [Validators.required, Validators.min(0)]],
+      costo_luz: [null, [Validators.required, Validators.min(0)]],
+      costo_agua: [null, [Validators.required, Validators.min(0)]],
+      costo_gas: [null, [Validators.required, Validators.min(0)]],
+      costo_aseo: [null, [Validators.required, Validators.min(0)]],
+      costo_internet: [null, [Validators.required, Validators.min(0)]],
+      costo_mano_obra: [null, [Validators.required, Validators.min(0)]],
       comentario_mano_obra: [''],
-      costo_transporte: [0, [Validators.required, Validators.min(0)]],
-      costo_perdidas: [0, [Validators.required, Validators.min(0)]],
-      costo_herramientas: [0, [Validators.required, Validators.min(0)]],
-      costo_mark_redes: [0, [Validators.required, Validators.min(0)]],
-      costo_mark_disenador: [0, [Validators.required, Validators.min(0)]],
-      costo_admin: [0, [Validators.required, Validators.min(0)]],
-      costo_etiqueta: [0, [Validators.required, Validators.min(0)]]
+      costo_transporte: [null, [Validators.required, Validators.min(0)]],
+      costo_perdidas: [null, [Validators.required, Validators.min(0)]],
+      costo_herramientas: [null, [Validators.required, Validators.min(0)]],
+      costo_mark_redes: [null, [Validators.required, Validators.min(0)]],
+      costo_mark_disenador: [null, [Validators.required, Validators.min(0)]],
+      costo_admin: [null, [Validators.required, Validators.min(0)]],
+      // costo_etiqueta: [0, [Validators.required, Validators.min(0)]]
+      porcentaje_ganancia_mayor: [null, [Validators.required, Validators.min(0), Validators.max(100)]],
+      porcentaje_ganancia_detal: [null, [Validators.required, Validators.min(0), Validators.max(100)]]
     });
 
     this.productoFormulario.valueChanges.subscribe(() => {
@@ -113,7 +115,9 @@ export class FormProductos implements OnInit, OnDestroy {
       costo_mark_redes: producto.costo_mark_redes || 0,
       costo_mark_disenador: producto.costo_mark_disenador || 0,
       costo_admin: producto.costo_admin || 0,
-      costo_etiqueta: producto.costo_etiqueta || 0
+      // costo_etiqueta: producto.costo_etiqueta || 0
+      porcentaje_ganancia_mayor: producto.porcentaje_ganancia_mayor || null,
+      porcentaje_ganancia_detal: producto.porcentaje_ganancia_detal || null
     });
 
     this.productoFormulario.get('id')?.disable();
@@ -245,8 +249,9 @@ export class FormProductos implements OnInit, OnDestroy {
       (form.costo_herramientas || 0) +
       (form.costo_mark_redes || 0) +
       (form.costo_mark_disenador || 0) +
-      (form.costo_admin || 0) +
-      (form.costo_etiqueta || 0)
+      (form.costo_admin || 0)
+      // (form.costo_admin || 0) +
+      // (form.costo_etiqueta || 0)
     );
   }
 
@@ -322,7 +327,9 @@ export class FormProductos implements OnInit, OnDestroy {
         costo_mark_redes: Number(formValue.costo_mark_redes || 0),
         costo_mark_disenador: Number(formValue.costo_mark_disenador || 0),
         costo_admin: Number(formValue.costo_admin || 0),
-        costo_etiqueta: Number(formValue.costo_etiqueta || 0)
+        costo_etiqueta: 0,
+        porcentaje_ganancia_mayor: Number(formValue.porcentaje_ganancia_mayor || 30),
+        porcentaje_ganancia_detal: Number(formValue.porcentaje_ganancia_detal || 50)
       };
 
       console.log('Datos a enviar:', prodData);

@@ -1,5 +1,5 @@
 import { CommonModule, NgFor, NgIf } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, HostListener, inject, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive } from "@angular/router";
 import { SidebarService } from '../../services/sidebar.service';
 import { AuthService } from '../../services/auth.service';
@@ -11,12 +11,14 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css',
 })
-export class Sidebar {
+export class Sidebar implements OnInit {
 
   private sidebarService = inject(SidebarService);
   protected authService = inject(AuthService);
 
   isCollapsed = false;
+  isMobileOpen = false;
+  isMobile = false;
 
   menuItems = [
     { icon: 'bi-puzzle', label: 'Insumos', route: '/insumos' },
@@ -32,8 +34,28 @@ export class Sidebar {
     });
   }
 
+  ngOnInit(): void {
+    this.checkMobile();
+  }
+
+  @HostListener('window:resize')
+  checkMobile(): void {
+    this.isMobile = window.innerWidth <= 768;
+    if (!this.isMobile) {
+      this.isMobileOpen = false;
+    }
+  }
+
   toggleSidebar() {
-    this.sidebarService.toggleSidebar();
+    if (this.isMobile) {
+      this.isMobileOpen = !this.isMobileOpen;
+    } else {
+      this.sidebarService.toggleSidebar();
+    }
+  }
+
+  closeMobileSidebar(): void {
+    this.isMobileOpen = false;
   }
 
   logout() {

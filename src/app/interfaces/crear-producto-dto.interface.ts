@@ -18,5 +18,8 @@ export interface CrearProductoDtoInterface {
     costo_mark_redes: number;
     costo_mark_disenador: number;
     costo_admin: number;
+    /** @deprecated La etiqueta ahora se gestiona desde los insumos */
     costo_etiqueta: number;
+    porcentaje_ganancia_mayor: number;
+    porcentaje_ganancia_detal: number;
 }

@@ -19,7 +19,17 @@
         <i [class]="isCollapsed ? 'bi bi-chevron-right' : 'bi bi-chevron-left'"></i>
     </button>
 </div> -->
-<nav class="sidebar" [class.collapsed]="isCollapsed">
+
+<div class="mobile-topbar">
+    <button class="btn btn-link p-0 text-white" (click)="toggleSidebar()" title="Abrir menú">
+        <i class="bi bi-list fs-4"></i>
+    </button>
+    <span class="brand-name">Siente</span>
+</div>
+
+<div class="sidebar-overlay" [class.active]="isMobileOpen" (click)="closeMobileSidebar()"></div>
+
+<nav class="sidebar" [class.collapsed]="isCollapsed" [class.mobile-open]="isMobileOpen">
     <div class="sidebar-header d-flex align-items-center justify-content-between px-3 py-3">
         @if (!isCollapsed) {
         <span class="sidebar-brand fw-semibold">Siente</span>
@@ -33,7 +43,7 @@
         @for (item of menuItems; track item.route) {
         <li class="nav-item mb-1">
             <a class="nav-link sidebar-link d-flex align-items-center gap-2 rounded" [routerLink]="item.route"
-                routerLinkActive="active">
+                routerLinkActive="active" (click)="closeMobileSidebar()">
                 <i class="bi {{ item.icon }} sidebar-icon"></i>
                 @if (!isCollapsed) {
                 <span>{{ item.label }}</span>

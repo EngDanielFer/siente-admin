@@ -36,6 +36,7 @@ export class FormInsumos implements OnInit, OnDestroy {
         if (insumo) {
           this.insumo = { ...insumo };
           this.modoEdicion = true;
+          this.recalcularPrecio();
         } else {
           this.limpiarFormulario();
         }
@@ -51,6 +52,18 @@ export class FormInsumos implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
+  }
+
+  onCantidadChange(): void {
+    if (this.modoEdicion) {
+      this.recalcularPrecio();
+    }
+  }
+
+  recalcularPrecio(): void {
+    const precioUnitario = this.insumo.precio_por_g_ml ?? 0;
+    const cantidad = this.insumo.cantidad_insumo_total ?? 0;
+    this.insumo.precio_insumo = precioUnitario * cantidad;
   }
 
   onSubmit() {
