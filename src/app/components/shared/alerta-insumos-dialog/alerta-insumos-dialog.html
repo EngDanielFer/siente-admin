@@ -1,0 +1,39 @@
+<h2 mat-dialog-title class="text-warning d-flex align-items-center gap-2">
+    <span style="font-size: 1.4rem;">⚠️</span>
+    Atención: Insumos con bajo stock
+</h2>
+
+<mat-dialog-content>
+    <p class="mb-3">
+        Estos insumos requieren de tu atención, por lo cual se deben actualizar antes de crear nuevos productos:
+    </p>
+
+    <div class="table-responsive">
+        <table class="table table-sm table-bordered">
+            <thead class="table-warning">
+                <tr>
+                    <th>Insumo</th>
+                    <th class="text-end">Cantidad restante</th>
+                    <th>Proveedor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let insumo of data.insumos">
+                    <td class="fw-semibold">{{ insumo.nombre_insumo }}</td>
+                    <td class="text-end text-danger fw-bold">
+                        {{ insumo.cantidad_insumo_restante ?? 0 }}
+                    </td>
+                    <td>{{ insumo.proveedor_insumo }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="alert alert-warning mt-2 mb-0">
+        <strong>Acción requerida:</strong> Ve a la sección de Insumos para agregar más cantidad de los insumos anteriormente listados
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button class="btn btn-warning" (click)="cerrar()">OK</button>
+</mat-dialog-actions>

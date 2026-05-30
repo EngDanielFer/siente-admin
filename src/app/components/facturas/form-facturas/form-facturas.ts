@@ -21,6 +21,7 @@ export class FormFacturas implements OnInit, OnDestroy {
   resultado: any | null = null;
   productosDisponibles: ProductosInterface[] = [];
 
+  paso: 1 | 2 = 1;
   mostrarFormulario = false;
   loading = false;
 
@@ -126,6 +127,15 @@ export class FormFacturas implements OnInit, OnDestroy {
     return this.facturaForm.get('productos') as FormArray;
   }
 
+  get subtotalProductos(): number {
+    return this.facturaForm.get('subtotal')?.value ?? 0;
+  }
+
+  get totalFactura(): number {
+    const envio = this.facturaForm.get('precioEnvio')?.value ?? 0;
+    return this.subtotalProductos + envio;
+  }
+
   cargarProductos(): void {
     this.productosService.getProductos()
       .subscribe(productos => {
@@ -174,6 +184,31 @@ export class FormFacturas implements OnInit, OnDestroy {
     this.facturaForm.get('subtotal')?.setValue(subtotal, { emitEvent: false });
   }
 
+  continuarADatosCliente(): void {
+    if (this.productos.length === 0) {
+      this.snackBar.open('Se debe agregar por lo menos un producto', 'Cerrar', {
+        duration: 4000,
+        panelClass: ['snack-error']
+      });
+      return;
+    }
+
+    this.productos.markAllAsTouched();
+    if (this.productos.invalid) {
+      this.snackBar.open('Completa los productos antes de continuar', 'Cerrar', {
+        duration: 4000,
+        panelClass: ['snack-error']
+      });
+      return;
+    }
+
+    this.paso = 2;
+  }
+
+  volverAProductos(): void {
+    this.paso = 1;
+  }
+
   enviarFactura(): void {
     if (this.facturaForm.invalid) {
       this.facturaForm.markAllAsTouched();
@@ -207,15 +242,25 @@ export class FormFacturas implements OnInit, OnDestroy {
     this.sharedFacturasService.setMostrarFormFactura(this.mostrarFormulario);
 
     if (!this.mostrarFormulario) {
-      this.facturaForm.reset();
-      this.productos.clear();
-      this.facturaForm.patchValue({
-        precio_envio: this.ENVIO_MAYORISTA,
-        tipo_precio: 'mayor'
-      });
-      this.resultado = null;
+      this.resetFormulario();
     }
   }
+
+  private resetFormulario(): void {
+    this.facturaForm.reset();
+    this.productos.clear();
+    this.facturaForm.patchValue({
+      precio_envio: this.ENVIO_MAYORISTA,
+      tipo_precio: 'mayor'
+    });
+    this.resultado = null;
+    this.paso = 1;
+  }
+
+  getNombreProducto(id: any): string {
+    const producto = this.productosDisponibles.find(p => p.id === Number(id));
+    return producto?.nombre_producto ?? 'Producto';
+  } 
 
   onDepartamentoChange(): void {
     const depto = this.facturaForm.get('datosCliente.region_cliente')?.value;

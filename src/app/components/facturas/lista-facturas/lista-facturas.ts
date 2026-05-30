@@ -26,6 +26,10 @@ export class ListaFacturas implements OnInit {
   mostrarModal = false;
   facturaSeleccionada?: FacturaCompletaInterface;
   loadingDetalle = false;
+  
+  mostrarConfirmarEliminar = false;
+  facturaAEliminar?: FacturasInterface;
+  eliminando = false;
 
   constructor(
     private facturasService: FacturasService,
@@ -103,6 +107,40 @@ export class ListaFacturas implements OnInit {
   cerrarModal() {
     this.mostrarModal = false;
     this.facturaSeleccionada = undefined;
+  }
+
+  confirmarEliminar(factura: FacturasInterface) {
+    this.facturaAEliminar = factura;
+    this.mostrarConfirmarEliminar = true;
+  }
+
+  cancelarEliminar() {
+    this.mostrarConfirmarEliminar = false;
+    this.facturaAEliminar = undefined;
+  }
+
+  eliminarFactura() {
+    if (!this.facturaAEliminar) return;
+
+    this.eliminando = true;
+    this.facturasService.eliminarFactura(this.facturaAEliminar.id).subscribe({
+      next: () => {
+          this.snackBar.open(
+            `Se ha eliminado la factura #${this.facturaAEliminar!.id}`,
+            'Cerrar',
+            { duration: 3000, panelClass: ['snack-success']}
+          );
+          this.cancelarEliminar();
+          this.eliminando = false;
+          this.listarFacturas();
+      },
+      error: (err)=> {
+        this.snackBar.open('Error al eliminar factura', 'Cerrar', {
+          duration: 4000, panelClass: ['snack-error']
+        });
+        this.eliminando = false;
+      }
+    });
   }
 
 }

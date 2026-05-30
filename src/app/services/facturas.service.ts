@@ -25,4 +25,8 @@ export class FacturasService {
   crearFactura(payload: any): Observable<any> {
     return this.http.post(`${this.apiUrl}`, payload);
   }
+
+  eliminarFactura(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+  }
 }

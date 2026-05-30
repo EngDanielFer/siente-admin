@@ -1,0 +1,45 @@
+<h2 mat-dialog-title class="text-danger d-flex align-items-center gap-2">
+    <span style="font-size: 1.4rem;">❌</span>
+    No se pudo crear el stock de productos
+</h2>
+<mat-dialog-content>
+    <div class="alert alert-danger mb-3">
+        {{ data.mensajeError || "No hay suficientes insumos para el stock" }}
+    </div>
+
+    <ng-container *ngIf="data.insumos && data.insumos.length > 0; else sinDetalle">
+        <p class="mb-2 fw-semibold">Se requieren estos insumos:</p>
+        <table class="table table-sm table-bordered">
+            <thead class="table-danger">
+                <tr>
+                    <th>Insumo</th>
+                    <th class="text-end">Cantidad restante</th>
+                    <th>Proveedor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let insumo of data.insumos">
+                    <td class="fw-semibold">{{ insumo.nombre_insumo }}</td>
+                    <td class="text-end text-danger fw-bold">
+                        {{ insumo.cantidad_insumo_restante ?? 0 }}
+                    </td>
+                    <td>{{ insumo.proveedor_insumo }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </ng-container>
+
+    <ng-template #sinDetalle>
+        <p class="mb-2 text-muted">
+            No se pudo determinar qué insumos hacen falta. Verificar la sección Insumos.
+        </p>
+    </ng-template>
+
+    <div class="alert alert-info mt-2 mb-0">
+        Para ello, ve a la sección de Insumos y agrega más insumos antes de crear el stock de productos.
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button class="btn btn-danger" (click)="cerrar()">Cerrar</button>
+</mat-dialog-actions>

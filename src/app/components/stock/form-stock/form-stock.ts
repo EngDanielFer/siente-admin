@@ -7,6 +7,11 @@ import { StockService } from '../../../services/stock.service';
 import { Subscription } from 'rxjs';
 import { SharedStockService } from '../../../services/shared/shared-stock.service';
 import { environment } from '../../../../environments/environment';
+import { MatDialog } from '@angular/material/dialog';
+import { InsumosFaltantesDialog } from '../../shared/insumos-faltantes-dialog/insumos-faltantes-dialog';
+import { InsumosService } from '../../../services/insumos.service';
+import { InsumosInterface } from '../../../interfaces/insumos.interface';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-form-stock',
@@ -30,7 +35,10 @@ export class FormStock implements OnInit {
     private formBuilder: FormBuilder,
     private httpClient: HttpClient,
     private stockService: StockService,
-    private sharedStockService: SharedStockService
+    private sharedStockService: SharedStockService,
+    private insumosService: InsumosService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -52,12 +60,14 @@ export class FormStock implements OnInit {
         next: (response) => {
           this.listaProductos = response;
           this.loadingProductos = false;
-          console.log('Productos cargados:', this.listaProductos);
         },
         error: (error) => {
           console.error('Error al cargar los productos:', error);
           this.loadingProductos = false;
-          alert("Ha ocurrido un error al cargar los productos");
+          this.snackBar.open('Ha ocurrido un error al cargar los productos', 'Cerrar', {
+            duration: 5000,
+            panelClass: ['snack-error']
+          });
         }
       });
   }
@@ -73,13 +83,64 @@ export class FormStock implements OnInit {
     const datos = this.stockFormulario.value;
 
     this.stockService.createStock(datos).subscribe({
-      next: (response) => {
-        console.log("Se ha agregado el siguiente stock: ", response);
-        alert("Stock agregado correctamente");
+      next: () => {
+        this.snackBar.open("Stock agregado correctamente", "Cerrar", {
+          duration: 3000,
+          panelClass: ['snack-success']
+        });
         this.stockFormulario.reset({ id_producto: 0, cantidad_producto: '' });
         this.sharedStockService.notificarCambios();
         this.enviando = false;
         this.loading = false;
+      },
+      error: (err) => {
+        this.enviando = false;
+        this.loading = false;
+
+        const mensaje: string = err?.error?.message ?? err?.error?.mensaje ?? '';
+
+        if (
+          mensaje.toLowerCase().includes('insumo') ||
+          mensaje.toLowerCase().includes('suficiente') ||
+          mensaje.toLowerCase().includes('no hay insumos')
+        ) {
+          this.mostrarDialogoInsumosFaltantes(mensaje);
+        } else {
+          this.snackBar.open(
+            mensaje || 'Error ala gregar stock', 'Cerrar', {
+              duration: 5000, panelClass: ['snack-error']
+            } 
+          );
+        }
+      }
+    });
+  }
+
+  private mostrarDialogoInsumosFaltantes(mensajeError: string): void {
+    this.insumosService.getInsumos().subscribe({
+      next: (insumos: InsumosInterface[]) => {
+        const insumosFaltantes = insumos.filter(
+          i => i.estado_insumo === "Agregar más insumo"
+        );
+
+        this.dialog.open(InsumosFaltantesDialog, {
+          width: '540px',
+          disableClose: false,
+          data: {
+            mensajeError,
+            insumos: insumosFaltantes
+          }
+        });
+      },
+      error: () => {
+        this.dialog.open(InsumosFaltantesDialog, {
+          width: '540px',
+          disableClose: false,
+          data: {
+            mensajeError,
+            insumos: []
+          }
+        });
       }
     });
   }

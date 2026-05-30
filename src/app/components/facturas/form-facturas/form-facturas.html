@@ -5,134 +5,269 @@
 </div>
 <div class="container mb-4" *ngIf="mostrarFormulario">
     <h3 class="mb-3">Agregar factura</h3>
-    <form [formGroup]="facturaForm" (ngSubmit)="enviarFactura()">
-        <fieldset formGroupName="datosCliente" class="border p-3 mb-3">
-            <legend>Datos del cliente</legend>
-            <div class="row g-3">
-                <div class="mb-3 col-md-6">
-                    <label class="form-label">Nombre</label>
-                    <input class="form-control" formControlName="nombre_cliente">
-                </div>
-                <div class="mb-3 col-md-6">
-                    <label class="form-label">Apellido</label>
-                    <input class="form-control" formControlName="apellido_cliente">
-                </div>
-                <div class="mb-3 col-md-6">
-                    <label class="form-label">Teléfono</label>
-                    <input class="form-control" formControlName="telefono_cliente">
-                </div>
-                <div class="mb-3 col-md-6">
-                    <label class="form-label">Email</label>
-                    <input class="form-control" formControlName="email_cliente">
-                </div>
-                <div class="mb-3 col-md-6">
-                    <label class="form-label">Dirección</label>
-                    <input class="form-control" formControlName="direccion_cliente">
-                </div>
-                <div class="mb-3 col-md-6">
-                    <label class="form-label">Complemento</label>
-                    <input class="form-control" formControlName="complemento_direccion">
-                </div>
-                <div class="mb-3 col-md-4">
-                    <label class="form-label">País</label>
-                    <select class="form-select" formControlName="pais_cliente">
-                        <option value="" selected>Seleccione un país</option>
-                        <option value="Colombia">Colombia</option>
-                    </select>
-                </div>
-                <div class="mb-3 col-md-4">
-                    <label class="form-label">Departamento</label>
-                    <select class="form-select" formControlName="region_cliente" (change)="onDepartamentoChange()">
-                        <option value="" disabled selected>Seleccione un departamento</option>
-                        <option *ngFor="let dep of departamentos" [value]="dep">{{ dep }}</option>
-                    </select>
-                </div>
-                <div class="mb-3 col-md-4">
-                    <label class="form-label">Ciudad</label>
-                    <select class="form-select" formControlName="ciudad_cliente">
-                        <option value="" disabled selected>Seleccione una ciudad</option>
-                        <option *ngFor="let ciudad of ciudadesFiltradas" [value]="ciudad">
-                            {{ ciudad }}
-                        </option>
-                    </select>
-                </div>
+    <div class="d-flex align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                [class.bg-success]="paso >= 1" [class.text-white]="paso >= 1" style="width:32px;height:32px;">
+                1
             </div>
-        </fieldset>
+            <span class="ms-2 fw-semibold" [class.text-success]="paso === 1">Productos</span>
+        </div>
+        <div class="flex-grow-1 mx-3" style="height: 2px; background: #dee2e6;">
+            <div [style.width]="paso === 2 ? '100%': '0%'"
+                style="height: 100%; background: #198754; transition: width .3s;"></div>
+        </div>
+        <div class="d-flex align-items-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                [class.bg-success]="paso >= 2" [class.text-white]="paso >= 2" [class.bg-secondary]="paso < 2"
+                style="height: 100%; background: #198754; transition: width .3s;">
+                2
+            </div>
+            <span class="ms-2 fw-semibold" [class.text-success]="paso === 2">Datos del cliente</span>
+        </div>
+    </div>
+    <form [formGroup]="facturaForm" (ngSubmit)="enviarFactura()">
 
-        <fieldset class="border p-3 mb-3">
-            <legend>Productos</legend>
+        <div *ngIf="paso === 1">
+            <fieldset class="border p-3 mb-3">
+                <legend>Productos</legend>
 
-            <div formArrayName="productos">
-                <div *ngIf="productos.length === 0" class="alert alert-warning">
-                    No hay productos agregados
-                </div>
-                <div *ngFor="let p of productos.controls; let i = index" [formGroupName]="i"
-                    class="row g-2 mb-2 align-items-center">
-
+                <div class="row g-3 mb-3">
                     <div class="col-md-6">
-                        <label class="form-label">Producto</label>
-                        <select class="form-select col" formControlName="id_producto">
-                            <option value="" disabled selected>
-                                Seleccione un producto
-                            </option>
-                            <option *ngFor="let prod of productosDisponibles" [value]="prod.id">
-                                {{ prod.nombre_producto }} (Stock: {{ prod.stock_producto }})
-                            </option>
+                        <label class="form-label">Tipo de precio</label>
+                        <select class="form-select" formControlName="tipo_precio">
+                            <option value="mayor">Precio al por mayor</option>
+                            <option value="detal">Precio al detal</option>
                         </select>
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Cantidad</label>
-                        <input class="form-control col" placeholder="Cantidad" type="number"
-                            formControlName="cantidad_producto" min="1" step="1">
+                    <div class="col-md-6">
+                        <label class="form-label">Precio de envío</label>
+                        <div class="alert alert-info mb-0 py-2">
+                            {{ facturaForm.get('precio_envio')?.value | currency:'COP':'symbol':'1.0-0' }}
+                        </div>
                     </div>
-                    <div class="col-md-2 align-items-end">
-                        <label class="form-label d-block">&nbsp;</label>
-                        <button type="button" class="btn btn-danger w-100" (click)="eliminarProducto(i)">
-                            Eliminar
-                        </button>
+                </div>
+
+                <div formArrayName="productos">
+                    <div *ngIf="productos.length === 0" class="alert alert-warning">
+                        No hay productos agregados
+                    </div>
+                    <div *ngFor="let p of productos.controls; let i = index" [formGroupName]="i"
+                        class="row g-2 mb-2 align-items-center">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Producto</label>
+                            <select class="form-select col" formControlName="id_producto"
+                                [class.is-invalid]="p.get('id_producto')?.invalid && p.get('id_producto')?.touched">
+                                <option value="" disabled selected>
+                                    Seleccione un producto
+                                </option>
+                                <option *ngFor="let prod of productosDisponibles" [value]="prod.id">
+                                    {{ prod.nombre_producto }} (Stock: {{ prod.stock_producto }})
+                                </option>
+                            </select>
+                            <div class="invalid-feedback">Selecciona un producto</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Cantidad</label>
+                            <input class="form-control col" placeholder="Cantidad" type="number"
+                                formControlName="cantidad_producto" min="1" step="1"
+                                [class.is-invalid]="p.get('cantidad_producto')?.invalid && p.get('cantidad_producto')?.touched">
+                            <div class="invalid-feedback">Ingresar una cantidad válida, mínimo 1</div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label d-block">&nbsp;</label>
+                            <button type="button" class="btn btn-danger w-100" (click)="eliminarProducto(i)">
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-secondary mt-2" (click)="agregarProducto()">
+                    + Agregar producto
+                </button>
+            </fieldset>
+
+            <div class="card mb-3 border-success">
+                <div class="card-body">
+                    <h6 class="card-title text-success mb-3">
+                        Resumen de factura
+                    </h6>
+                    <div class="row">
+                        <div class="col-6 text-muted">
+                            Subtotal productos:
+                        </div>
+                        <div class="col-6 text-end fw-semibold">
+                            {{ subtotalProductos | currency:'COP':'symbol':'1.0-0' }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 text-muted">Precio de envío:</div>
+                        <div class="col-6 text-end fw-semibold">
+                            {{ facturaForm.get('precio_envio')?.value | currency: 'COP':'symbol':'1.0-0' }}
+                        </div>
+                    </div>
+                    <hr class="my-2">
+                    <div class="row">
+                        <div class="col-6 fw-bold fs-5">Total:</div>
+                        <div class="col-6 text-end fw-bold fs-5 text-success">
+                            {{ totalFactura | currency: 'COP':'symbol':'1.0-0' }}
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <button type="button" class="btn btn-secondary mt-2" (click)="agregarProducto()">
-                + Agregar producto
+            <button type="button" class="btn btn-primary w-100" (click)="continuarADatosCliente()">
+                Ir a datos del cliente
             </button>
-        </fieldset>
-
-        <div class="row g-3 mb-3">
-            <div class="mb-3 col-md-6">
-                <label class="form-label">Tipo de precio</label>
-                <select class="form-select" formControlName="tipo_precio">
-                    <option value="mayor">Precio al por mayor</option>
-                    <option value="detal">Precio al detal</option>
-                </select>
-            </div>
-            <div class="mb-3 col-md-6">
-                <label class="form-label">Método de pago</label>
-                <input class="form-control" formControlName="metodo_pago">
-            </div>
-            <div class="mb-3 col-md-6">
-                <label class="form-label">Subtotal</label>
-                <input class="form-control" type="number" formControlName="subtotal" readonly>
-            </div>
-            <div class="mb-3 col-md-6">
-                <label class="form-label">Precio de envío</label>
-                <div class="alert alert-info mb-3">
-                    {{ facturaForm.get('precio_envio')?.value | currency:'COP' }}
+        </div>
+        <div *ngIf="paso === 2">
+            <div class="card mb-3 border-secondary">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold">Productos seleccionados</span>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="volverAProductos()">
+                        Volver a productos
+                    </button>
                 </div>
+                <div class="card-body p-2">
+                    <div *ngFor="let p of productos.controls; let i = index"
+                        class="d-flex justify-content-between small py-1 border-bottom">
+                        <span>
+                            {{ getNombreProducto(p.get('id_producto')?.value) }}
+                            <span class="text-muted">{{ p.get('cantidad_producto')?.value }}</span>
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between fw-bold mt-2">
+                        <span>Total:</span>
+                        <span class="text-success">
+                            {{ totalFactura | currency: 'COP':'symbol':'1.0-0' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <fieldset formGroupName="datosCliente" class="border p-3 mb-3">
+                <legend>Datos del cliente</legend>
+                <div class="row g-3">
+                    <div class="mb-3 col-md-6">
+                        <label class="form-label">Nombre</label>
+                        <input class="form-control" formControlName="nombre_cliente"
+                            [class.is-nvalid]="facturaForm.get('datosCliente.nombre_cliente')?.invalid && facturaForm.get('datosCliente.nombre_cliente')?.touched">
+                        <div class="invalid-feedback">Campo requerido</div>
+                    </div>
+                    <div class="mb-3 col-md-6">
+                        <label class="form-label">Apellido</label>
+                        <input class="form-control" formControlName="apellido_cliente"
+                            [class.is-invalid]="facturaForm.get('datosCliente.apellido_cliente')?.invalid && facturaForm.get('datosCliente.apellido_cliente')?.touched">
+                        <div class="invalid-feedback">Campo requerido</div>
+                    </div>
+                    <div class="mb-3 col-md-6">
+                        <label class="form-label">Teléfono</label>
+                        <input class="form-control" formControlName="telefono_cliente"
+                            [class.is-invalid]="facturaForm.get('datosCliente.telefono_cliente')?.invalid && facturaForm.get('datosCliente.telefono_cliente')?.touched">
+                        <div class="invalid-feedback">Campo requerido</div>
+                    </div>
+                    <div class="mb-3 col-md-6">
+                        <label class="form-label">Email</label>
+                        <input class="form-control" formControlName="email_cliente" type="email"
+                            [class.is-invalid]="facturaForm.get('datosCliente.email_cliente')?.invalid && facturaForm.get('datosCliente.email_cliente')?.touched">
+                        <div class="invalid-feedback">Se debe ingresar un email válido</div>
+                    </div>
+                    <div class="mb-3 col-md-6">
+                        <label class="form-label">Dirección</label>
+                        <input class="form-control" formControlName="direccion_cliente"
+                            [class.is-invalid]="facturaForm.get('datosCliente.direccion_cliente')?.invalid && facturaForm.get('datosCliente.direccion_cliente')?.touched">
+                        <div class="invalid-feedback">Campo requerido</div>
+                    </div>
+                    <div class="mb-3 col-md-6">
+                        <label class="form-label">Complemento</label>
+                        <input class="form-control" formControlName="complemento_direccion">
+                    </div>
+                    <div class="mb-3 col-md-4">
+                        <label class="form-label">País</label>
+                        <select class="form-select" formControlName="pais_cliente"
+                            [class.is-invalid]="facturaForm.get('datosCliente.pais_cliente')?.invalid && facturaForm.get('datosCliente.pais_cliente')?.touched">
+                            <option value="" selected>Seleccione un país</option>
+                            <option value="Colombia">Colombia</option>
+                        </select>
+                        <div class="invalid-feedback">Campo requerido</div>
+                    </div>
+                    <div class="mb-3 col-md-4">
+                        <label class="form-label">Departamento</label>
+                        <select class="form-select" formControlName="region_cliente" (change)="onDepartamentoChange()"
+                            [class.is-invalid]="facturaForm.get('datosCliente.region_cliente')?.invalid && facturaForm.get('datosCliente.region_cliente')?.touched">
+                            <option value="" disabled selected>Seleccione un departamento</option>
+                            <option *ngFor="let dep of departamentos" [value]="dep">{{ dep }}</option>
+                        </select>
+                        <div class="invalid-feedback">Campo requerido</div>
+                    </div>
+                    <div class="mb-3 col-md-4">
+                        <label class="form-label">Ciudad</label>
+                        <select class="form-select" formControlName="ciudad_cliente"
+                            [class.is-invalid]="facturaForm.get('datosCliente.ciudad_cliente')?.invalid && facturaForm.get('datosCliente.ciudad_cliente')?.touched">
+                            <option value="" disabled selected>Seleccione una ciudad</option>
+                            <option *ngFor="let ciudad of ciudadesFiltradas" [value]="ciudad">
+                                {{ ciudad }}
+                            </option>
+                        </select>
+                        <div class="invalid-feedback">Campo requerido</div>
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="row g-3 mb-3">
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">Método de pago</label>
+                    <input class="form-control" formControlName="metodo_pago"
+                        [class.is-invalid]="facturaForm.get('metodo_pago')?.invalid && facturaForm.get('metodo_pago')?.touched">
+                    <div class="invalid-feedback">Campo requerido</div>
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">Subtotal de productos</label>
+                    <input class="form-control" type="number" formControlName="subtotal" readonly>
+                </div>
+            </div>
+            <div class="card mb-3 border-success">
+                <div class="card-body">
+                    <h6 class="card-title text-success mb-3">Resumen</h6>
+                    <div class="row">
+                        <div class="col-6 text-muted">Subtotal productos:</div>
+                        <div class="col-6 text-end fw-semibold">
+                            {{ subtotalProductos | currency: 'COP':'symbol':'1.0-0' }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 text-muted">Precio de envío:</div>
+                        <div class="col-6 text-end fw-semibold">
+                            {{ facturaForm.get('precio_envio')?.value | currency: 'COP':'symbol':'1.0-0' }}
+                        </div>
+                    </div>
+                    <hr class="my-2">
+                    <div class="row">
+                        <div class="col-6 fw-bold fs-5">Total a pagar:</div>
+                        <div class="col-6 text-end fw-bold fs-5 text-sucess">
+                            {{ totalFactura | currency: 'COP':'symbol':'1.0-0' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-secondary" (click)="volverAProductos()">
+                    Volver a productos
+                </button>
+                <button type="submit" class="btn btn-success flex-grow-1" [disabled]="loading">
+                    {{ loading ? 'Creando factura' : 'Crear factura' }}
+                </button>
             </div>
         </div>
-
-        <button class="btn btn-success w-100">
-            Crear factura
-        </button>
     </form>
 
     <div *ngIf="resultado" class="alert alert-success mt-4">
         <strong>Factura creada:</strong><br>
         ID: {{ resultado.id_factura }}<br>
-        Valor total: {{ resultado.valor_total | currency }}<br>
-        Valor pagado: {{ resultado.valor_pagado | currency }}<br>
-        Precio envío: {{ resultado.precio_envio | currency }}
+        Valor total: {{ resultado.valor_total | currency:'COP':'symbol':'1.0-0' }}<br>
+        Valor pagado: {{ resultado.valor_pagado | currency:'COP':'symbol':'1.0-0' }}<br>
+        Precio envío: {{ resultado.precio_envio | currency:'COP':'symbol':'1.0-0' }}
     </div>
 </div>
