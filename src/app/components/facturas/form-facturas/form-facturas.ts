@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FacturasService } from '../../../services/facturas.service';
 import { SharedFacturaService } from '../../../services/shared/shared-factura.service';
 import { CommonModule } from '@angular/common';
@@ -132,7 +132,7 @@ export class FormFacturas implements OnInit, OnDestroy {
   }
 
   get totalFactura(): number {
-    const envio = this.facturaForm.get('precioEnvio')?.value ?? 0;
+    const envio = this.facturaForm.get('precio_envio')?.value ?? 0;
     return this.subtotalProductos + envio;
   }
 
@@ -152,6 +152,27 @@ export class FormFacturas implements OnInit, OnDestroy {
         cantidad_producto: [1, [Validators.required, Validators.min(1)]]
       })
     );
+  }
+
+  
+  getPrecioUnitario(control: AbstractControl): number {
+    const idProducto = control.get('id_producto')?.value;
+    if (!idProducto) {
+      return 0;
+    }
+
+    const producto = this.productosDisponibles.find(p => p.id === Number(idProducto));
+    if (!producto) {
+      return 0;
+    }
+
+    const tipoPrecio = this.facturaForm.get('tipo_precio')?.value;
+    return tipoPrecio === 'detal' ? producto.precio_detal : producto.precio_por_mayor;
+  }
+
+  getSubtotalFila(control: AbstractControl) : number {
+    const cantidad = control.get('cantidad_producto')?.value ?? 0;
+    return this.getPrecioUnitario(control) * cantidad;
   }
 
   eliminarProducto(index: number): void {

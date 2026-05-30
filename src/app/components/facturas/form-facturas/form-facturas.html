@@ -55,7 +55,7 @@
                     <div *ngFor="let p of productos.controls; let i = index" [formGroupName]="i"
                         class="row g-2 mb-2 align-items-center">
 
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label">Producto</label>
                             <select class="form-select col" formControlName="id_producto"
                                 [class.is-invalid]="p.get('id_producto')?.invalid && p.get('id_producto')?.touched">
@@ -68,12 +68,24 @@
                             </select>
                             <div class="invalid-feedback">Selecciona un producto</div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-2">
+                            <label class="form-label">Precio unitario</label>
+                            <div class="form-control bg-light text-end fw-semibold" style="min-height: 38px;">
+                                {{ getPrecioUnitario(p) | currency:'COP':'symbol':'1.0-0' }}
+                            </div>
+                        </div>
+                        <div class="col-md-2">
                             <label class="form-label">Cantidad</label>
                             <input class="form-control col" placeholder="Cantidad" type="number"
                                 formControlName="cantidad_producto" min="1" step="1"
                                 [class.is-invalid]="p.get('cantidad_producto')?.invalid && p.get('cantidad_producto')?.touched">
                             <div class="invalid-feedback">Ingresar una cantidad válida, mínimo 1</div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Total</label>
+                            <div class="form-control bg-light text-end fw-bold text-success" style="min-height: 38px;">
+                                {{ getSubtotalFila(p) | currency:'COP':'symbol':'1.0-0' }}
+                            </div>
                         </div>
                         <div class="col-md-2">
                             <label class="form-label d-block">&nbsp;</label>
@@ -131,14 +143,34 @@
                     </button>
                 </div>
                 <div class="card-body p-2">
+                    <div class="d-flex justify-content-between small fw-semibold text-muted px-1 pb-1 border-bottom">
+                        <span style="flex:2">Producto</span>
+                        <span class="text-end" style="flex:1">Precio unitario</span>
+                        <span class="text-center" style="flex:0 0 60px">Cant.</span>
+                        <span class="text-end" style="flex:1">Total</span>
+                    </div>
                     <div *ngFor="let p of productos.controls; let i = index"
-                        class="d-flex justify-content-between small py-1 border-bottom">
-                        <span>
+                        class="d-flex justify-content-between align-items-center small py-2 border-bottom">
+                        <span style="flex:2">
                             {{ getNombreProducto(p.get('id_producto')?.value) }}
-                            <span class="text-muted">{{ p.get('cantidad_producto')?.value }}</span>
+                        </span>
+                        <span class="text-end text-muted" style="flex:1">
+                            {{ getPrecioUnitario(p) | currency: 'COP':'symbol':'1.0-0' }}
+                        </span>
+                        <span class="text-center text-muted" style="flex:0 0 60px">
+                            {{ p.get('cantidad_producto')?.value }}
+                        </span>
+                        <span class="text-end fw-semibold" style="flex:1">
+                            {{ getSubtotalFila(p) | currency: 'COP':'symbol':'1.0-0' }}
                         </span>
                     </div>
-                    <div class="d-flex justify-content-between fw-bold mt-2">
+                    <div class="d-flex row">
+                        <div class="col-6 text-muted">Precio de envío:</div>
+                        <div class="col-6 text-end fw-semibold">
+                            {{ facturaForm.get('precio_envio')?.value | currency: 'COP':'symbol':'1.0-0' }}
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between fw-bold mt-2 px-1">
                         <span>Total:</span>
                         <span class="text-success">
                             {{ totalFactura | currency: 'COP':'symbol':'1.0-0' }}
