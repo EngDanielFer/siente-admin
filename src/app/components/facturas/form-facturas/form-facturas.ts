@@ -172,7 +172,7 @@ export class FormFacturas implements OnInit, OnDestroy {
 
   getSubtotalFila(control: AbstractControl) : number {
     const cantidad = control.get('cantidad_producto')?.value ?? 0;
-    return this.getPrecioUnitario(control) * cantidad;
+    return Math.round(this.getPrecioUnitario(control) * cantidad);
   }
 
   eliminarProducto(index: number): void {
@@ -202,7 +202,7 @@ export class FormFacturas implements OnInit, OnDestroy {
       subtotal += precio * cantidad;
     });
 
-    this.facturaForm.get('subtotal')?.setValue(subtotal, { emitEvent: false });
+    this.facturaForm.get('subtotal')?.setValue(Math.round(subtotal), { emitEvent: false });
   }
 
   continuarADatosCliente(): void {
