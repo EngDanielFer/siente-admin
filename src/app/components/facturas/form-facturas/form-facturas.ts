@@ -185,25 +185,25 @@ export class FormFacturas implements OnInit, OnDestroy {
     let subtotal = 0;
 
     this.productos.controls.forEach(control => {
-      const idProducto = control.get('id_producto')?.value;
-      const cantidad = control.get('cantidad_producto')?.value;
+      // const idProducto = control.get('id_producto')?.value;
+      // const cantidad = control.get('cantidad_producto')?.value;
 
-      if (!idProducto || !cantidad) return;
+      // if (!idProducto || !cantidad) return;
 
-      const producto = this.productosDisponibles
-        .find(p => p.id === Number(idProducto));
+      // const producto = this.productosDisponibles
+      //   .find(p => p.id === Number(idProducto));
 
-      if (!producto) return;
+      // if (!producto) return;
 
-      const precio =
-        tipoPrecio === 'detal'
-          ? producto.precio_detal
-          : producto.precio_por_mayor;
+      // const precio =
+      //   tipoPrecio === 'detal'
+      //     ? producto.precio_detal
+      //     : producto.precio_por_mayor;
 
-      subtotal += precio * cantidad;
+      subtotal += this.getSubtotalFila(control);
     });
 
-    this.facturaForm.get('subtotal')?.setValue(Math.round(subtotal), { emitEvent: false });
+    this.facturaForm.get('subtotal')?.setValue(subtotal, { emitEvent: false });
   }
 
   continuarADatosCliente(): void {
