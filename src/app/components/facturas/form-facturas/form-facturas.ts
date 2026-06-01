@@ -128,7 +128,7 @@ export class FormFacturas implements OnInit, OnDestroy {
   }
 
   get subtotalProductos(): number {
-    return this.facturaForm.get('subtotal')?.value ?? 0;
+    return Math.round(this.facturaForm.get('subtotal')?.value ?? 0);
   }
 
   get totalFactura(): number {
