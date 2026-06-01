@@ -7,6 +7,7 @@ import { ProductosInterface } from '../../../interfaces/productos.interface';
 import { ProductosService } from '../../../services/productos.service';
 import { Subscription } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CotizacionPdfService } from '../../../services/cotizacion-pdf.service';
 
 @Component({
   selector: 'app-form-facturas',
@@ -75,7 +76,8 @@ export class FormFacturas implements OnInit, OnDestroy {
     private facturasService: FacturasService,
     private productosService: ProductosService,
     private sharedFacturasService: SharedFacturaService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cotizacionPdfService: CotizacionPdfService
   ) {
     this.facturaForm = this.fb.group({
       datosCliente: this.fb.group({
@@ -288,5 +290,39 @@ export class FormFacturas implements OnInit, OnDestroy {
     const depto = this.facturaForm.get('datosCliente.region_cliente')?.value;
     this.ciudadesFiltradas = this.COLOMBIA_DATA[depto] ?? [];
     this.facturaForm.get('datosCliente.ciudad_cliente')?.setValue('');
+  }
+
+  generandoPdf = false;
+
+  async descargarCotizacion(): Promise<void> {
+    if (this.productos.length === 0) {
+      this.snackBar.open('Se debe agregar por lo menos un producto para descargar la cotización', 'Cerrar', {
+        duration: 3000,
+        panelClass: ['snack-error']
+      });
+      return;
+    }
+
+    this.generandoPdf = true;
+
+    const productosData = this.productos.controls
+      .map(control => {
+        const nombre = this.getNombreProducto(control.get('id_producto')?.value);
+        const precioUnitario = this.getPrecioUnitario(control);
+        const cantidad = control.get('cantidad_producto')?.value ?? 0;
+        const subtotal = this.getSubtotalFila(control);
+        return { nombre, precioUnitario, cantidad, subtotal };
+      })
+      .filter(p => p.nombre !== 'Producto' && p.cantidad > 0);
+    
+    await this.cotizacionPdfService.descargarCotizacion({
+      productos: productosData,
+      subtotalProductos: this.subtotalProductos,
+      precioEnvio: this.facturaForm.get('precio_envio')?.value ?? 0,
+      totalFactura: this.totalFactura,
+      tipoPrecio: this.facturaForm.get('tipo_precio')?.value ?? 0
+    });
+
+    this.generandoPdf = false;
   }
 }

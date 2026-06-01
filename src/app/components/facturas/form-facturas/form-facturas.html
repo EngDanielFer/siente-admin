@@ -96,9 +96,22 @@
                     </div>
                 </div>
 
-                <button type="button" class="btn btn-secondary mt-2" (click)="agregarProducto()">
-                    + Agregar producto
-                </button>
+                <div class="d-flex gap-2 mt-2">
+                    <button type="button" class="btn btn-secondary mt-2" (click)="agregarProducto()">
+                        + Agregar producto
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" (click)="descargarCotizacion()"
+                        [disabled]="generandoPdf || productos.length === 0">
+                        <span *ngIf="!generandoPdf">
+                            ⬇ Descargar cotización PDF
+                        </span>
+                        <span *ngIf="generandoPdf">
+                            <span class="spinner-border  spinner-border-sm me-1"></span>
+                            Generando PDF
+                        </span>
+                    </button>
+                </div>
+
             </fieldset>
 
             <div class="card mb-3 border-success">
