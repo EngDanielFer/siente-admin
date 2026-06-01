@@ -156,7 +156,7 @@ export class FormFacturas implements OnInit, OnDestroy {
 
   
   getPrecioUnitario(control: AbstractControl): number {
-    const idProducto = Math.round(control.get('id_producto')?.value);
+    const idProducto = control.get('id_producto')?.value;
     if (!idProducto) {
       return 0;
     }
@@ -167,7 +167,8 @@ export class FormFacturas implements OnInit, OnDestroy {
     }
 
     const tipoPrecio = this.facturaForm.get('tipo_precio')?.value;
-    return tipoPrecio === 'detal' ? producto.precio_detal : producto.precio_por_mayor;
+    const precio =  tipoPrecio === 'detal' ? producto.precio_detal : producto.precio_por_mayor;
+    return Math.round(precio);
   }
 
   getSubtotalFila(control: AbstractControl) : number {
