@@ -156,7 +156,7 @@ export class FormFacturas implements OnInit, OnDestroy {
 
   
   getPrecioUnitario(control: AbstractControl): number {
-    const idProducto = control.get('id_producto')?.value;
+    const idProducto = Math.round(control.get('id_producto')?.value);
     if (!idProducto) {
       return 0;
     }
