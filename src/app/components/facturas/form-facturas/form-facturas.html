@@ -42,9 +42,12 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Precio de envío</label>
-                        <div class="alert alert-info mb-0 py-2">
+                        <!-- <div class="alert alert-info mb-0 py-2">
                             {{ facturaForm.get('precio_envio')?.value | currency:'COP':'symbol':'1.0-0' }}
-                        </div>
+                        </div> -->
+                        <input class="form-control" type="number" formControlName="precio_envio" min="0" step="1"
+                            [class.is-invalid]="facturaForm.get('precio_envio')?.invalid && facturaForm.get('precio_envio')?.touched">
+                        <div class="invalid-feedback">El precio de envío debe ser mayor o igual a 0</div>
                     </div>
                 </div>
 

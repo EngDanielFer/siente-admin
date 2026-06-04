@@ -8,6 +8,7 @@ import { ProductosService } from '../../../services/productos.service';
 import { Subscription } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CotizacionPdfService } from '../../../services/cotizacion-pdf.service';
+import { FacturaVentaPdfService } from '../../../services/factura-venta-pdf.service';
 
 @Component({
   selector: 'app-form-facturas',
@@ -77,7 +78,8 @@ export class FormFacturas implements OnInit, OnDestroy {
     private productosService: ProductosService,
     private sharedFacturasService: SharedFacturaService,
     private snackBar: MatSnackBar,
-    private cotizacionPdfService: CotizacionPdfService
+    private cotizacionPdfService: CotizacionPdfService,
+    private facturaVentaPdfService: FacturaVentaPdfService
   ) {
     this.facturaForm = this.fb.group({
       datosCliente: this.fb.group({
@@ -187,21 +189,6 @@ export class FormFacturas implements OnInit, OnDestroy {
     let subtotal = 0;
 
     this.productos.controls.forEach(control => {
-      // const idProducto = control.get('id_producto')?.value;
-      // const cantidad = control.get('cantidad_producto')?.value;
-
-      // if (!idProducto || !cantidad) return;
-
-      // const producto = this.productosDisponibles
-      //   .find(p => p.id === Number(idProducto));
-
-      // if (!producto) return;
-
-      // const precio =
-      //   tipoPrecio === 'detal'
-      //     ? producto.precio_detal
-      //     : producto.precio_por_mayor;
-
       subtotal += this.getSubtotalFila(control);
     });
 
@@ -245,9 +232,21 @@ export class FormFacturas implements OnInit, OnDestroy {
         next: res => {
           this.resultado = res;
           this.loading = false;
-          this.snackBar.open('Se ha creado correctamente la factura', 'Cerrar', {
+          this.snackBar.open('Se ha creado correctamente la factura y se está descargando', 'Cerrar', {
             duration: 3000,
             panelClass: ['snack-success']
+          });
+
+          this.facturasService.getFacturaById(res.id_factura).subscribe({
+            next: facturaCompleta => {
+              this.facturaVentaPdfService.descargarFactura(facturaCompleta);
+            },
+            error: () => {
+              this.snackBar.open('Factura creada correctamente, pero no se pudo generar el PDF', 'Cerrar', {
+                duration: 4000,
+                panelClass: ['snack-error']
+              });
+            }
           });
         },
         error: err => {
