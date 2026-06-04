@@ -33,7 +33,7 @@ export class FacturaVentaPdfService {
     doc.rect(0, 0, 210, alturaEncabezado, 'F');
 
     if (logoBase64) {
-      const logoAltoMm = 22;
+      const logoAltoMm = 35;
       const logoAnchoMm = logoAltoMm * (300 / 327);
       doc.addImage(logoBase64, 'PNG', margDer - logoAnchoMm, 3, logoAnchoMm, logoAltoMm);
     }
