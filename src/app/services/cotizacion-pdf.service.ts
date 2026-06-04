@@ -35,12 +35,22 @@ export class CotizacionPdfService {
       grisBorde: [200, 200, 200] as [number, number, number],
       negro: [30, 30, 30] as [number, number, number],
       blanco: [255, 255, 255] as [number, number, number],
+      amarilloClaro: [245, 245, 132] as [number, number, number],
     };
 
-    doc.setFillColor(...colores.verdeOscuro);
-    doc.rect(0, 0, 210, 38, 'F');
+    const logoBase64 = await this.cargarImagenComoBase64('../../assets/logo_siente.png');
 
-    doc.setTextColor(...colores.blanco);
+    const alturaEncabezado = 42;
+    doc.setFillColor(...colores.amarilloClaro);
+    doc.rect(0, 0, 210, alturaEncabezado, 'F');
+
+    if (logoBase64) {
+      const logoAltoMm = 22;
+      const logoAnchoMm = logoAltoMm * (300/327);
+      doc.addImage(logoBase64, 'PNG', margDer - logoAnchoMm, 3, logoAnchoMm, logoAltoMm);
+    }
+
+    doc.setTextColor(...colores.negro);
     doc.setFontSize(22);
     doc.setFont('helvetica', 'bold');
     doc.text('Cotización de productos Siente', margIzq, 18);
@@ -56,7 +66,7 @@ export class CotizacionPdfService {
       margIzq, 34
     );
 
-    y = 50;
+    y = alturaEncabezado + 10;
 
     doc.setTextColor(...colores.negro);
     doc.setFontSize(12);
@@ -114,10 +124,10 @@ export class CotizacionPdfService {
       fondo?: [number, number, number];
       colorTexto?: [number, number, number];
     }[] = [
-      { label: 'Subtotal productos:', valor: datos.subtotalProductos },
-      { label: 'Precio envío:', valor: datos.precioEnvio },
-      { label: 'Total:', valor: datos.totalFactura, negrita: true, fondo: colores.verdeOscuro, colorTexto: colores.blanco }
-    ];
+        { label: 'Subtotal productos:', valor: datos.subtotalProductos },
+        { label: 'Precio envío:', valor: datos.precioEnvio },
+        { label: 'Total:', valor: datos.totalFactura, negrita: true, fondo: colores.verdeOscuro, colorTexto: colores.blanco }
+      ];
 
     filasTotales.forEach(fila => {
       if (fila.fondo) {
@@ -146,6 +156,25 @@ export class CotizacionPdfService {
     );
 
     doc.save(`cotizacion_${Date.now()}.pdf`);
+  }
+
+  private cargarImagenComoBase64(ruta: string): Promise<string | null> {
+    return new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image.png'));
+      };
+      img.onerror = () => {
+        console.warn('No se pudo cargar el logo:', ruta);
+        resolve(null);
+      };
+      img.src = ruta;
+    });
   }
 
   private formatCOP(valor: number): string {
