@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs';
 import { SharedProductoService } from '../../../services/shared/shared-producto.service';
 import { CostosFijosProductos } from './costos-fijos-productos/costos-fijos-productos';
 import { InsumosProductos } from './insumos-productos/insumos-productos';
+import { EditarStock } from './editar-stock/editar-stock';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmDeleteDialog } from '../../insumos/lista-insumos/confirm-delete-dialog/confirm-delete-dialog';
@@ -14,7 +15,7 @@ import { ConfirmDeleteDialog } from '../../insumos/lista-insumos/confirm-delete-
 @Component({
   selector: 'app-lista-productos',
   standalone: true,
-  imports: [CommonModule, CostosFijosProductos, InsumosProductos],
+  imports: [CommonModule, CostosFijosProductos, InsumosProductos, EditarStock],
   templateUrl: './lista-productos.html',
   styleUrl: './lista-productos.css',
 })
@@ -32,7 +33,10 @@ export class ListaProductos implements OnInit, OnDestroy {
 
   mostrarCostosFijos: boolean = false;
   mostrarInsumos: boolean = false;
+  mostrarEditarStock: boolean = false;
   productoSelecId: number | null = null;
+  productoSelecStock: number = 0;
+  productoSelecNombre: string = '';
 
   private subscription: Subscription = new Subscription();
 
@@ -98,10 +102,30 @@ export class ListaProductos implements OnInit, OnDestroy {
     this.mostrarCostosFijos = false;
   }
 
+  verEditarStock(producto: ProductosInterface): void {
+    this.productoSelecId = producto.id!;
+    this.productoSelecStock = producto.stock_producto ?? 0;
+    this.productoSelecNombre = producto.nombre_producto;
+    this.mostrarEditarStock = true;
+    this.mostrarCostosFijos = false;
+    this.mostrarInsumos = false;
+  }
+
   cerrarModal(): void {
     this.mostrarCostosFijos = false;
     this.mostrarInsumos = false;
+    this.mostrarEditarStock = false;
     this.productoSelecId = null;
+    this.productoSelecStock = 0;
+    this.productoSelecNombre = '';
+  }
+
+  onStockActualizado(): void {
+    this.listarProductos();
+    this.snackBar.open('Stock actualizado correctamente', 'Cerrar', {
+      duration: 3000,
+      panelClass: ['snack-success']
+    });
   }
 
   confirmarEliminar(id: number): void {

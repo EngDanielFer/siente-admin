@@ -21,4 +21,12 @@ export class StockService {
     return this.http.post<StockInterface>(this.apiUrl, payload);
   }
 
+  updateStock(idProducto: number, payload: { cantidad_producto: number; diferencia: number }): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${idProducto}`, payload);
+  }
+
+  deleteStockLote(idProductoStock: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/${idProductoStock}`);
+  }
+
 }

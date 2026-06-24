@@ -1,0 +1,114 @@
+<div class="modal-backdrop" (click)="cerrar.emit()"></div>
+<div class="modal-content-custom">
+    <div class="modal-header">
+        <h5 class="modal-title">
+            <i class="bi bi-boxes me-2"></i> Editar Stock
+        </h5>
+        <button type="button" class="btn-close" (click)="cerrar.emit()"></button>
+    </div>
+
+    <div class="modal-body">
+
+        <div *ngIf="loadingProducto" class="text-center my-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando</span>
+            </div>
+            <p class="text-muted mt-2">Cargando información del producto...</p>
+        </div>
+
+        <div *ngIf="!loadingProducto">
+            <div class="producto-info mb-4">
+                <p class="mb-1 text-muted small">Producto</p>
+                <h6 class="mb-0 fw-bold">{{ nombreProducto }}</h6>
+                <span class="badgebg-secondary">ID: {{ productoId }}</span>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-6">
+                    <label class="form-label fw-semibold">Stock actual</label>
+                    <div class="form-control bg-light text-center fs-5 fw-bold text-primary">
+                        {{ stockActual }}
+                    </div>
+                </div>
+                <div class="col-6">
+                    <label for="nuevoStock" class="form-label fw-semibold">
+                        Nuevo stock <span class="text-danger">*</span>
+                    </label>
+                    <input type="number" id="nuevoStock" class="form-control text-center fs-5 fw-bold"
+                        [(ngModel)]="nuevoStock" (ngModelChange)="onStockChange()" min="0"
+                        [class.is-invalid]="submitted && (nuevoStock === null || nuevoStock! < 0)">
+                    <div class="invalid-feedback">
+                        El stock debe ser un número mayor o igual a 0
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert mb-3" [class]="claseAlerta" *ngIf="nuevoStock != null">
+                <div class="d-flex align-items-start gap-2">
+                    <i class="bi fs-5 mt-1" [class]="iconoAlerta"></i>
+                    <div>
+                        <div *ngIf="diferencia === 0">
+                            Sin cambios. El nuevo stock es igual al actual.
+                        </div>
+                        <div *ngIf="diferencia !== 0">
+                            <strong>Cambio: {{ diferencia > 0 ? '+' : '' }}{{ diferencia }} unidad(es)</strong>
+                            <p class="mb-0 mt-1 small">{{ descripcionCambio }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="productoCompleto && productoCompleto.insumos && productoCompleto.insumos.length > 0 && diferencia !== 0"
+                class="insumos-afectados mb-3">
+                <p class="fw-semibold mb-2">
+                    <i class="bi bi-box-seam me-1"></i>
+                    Insumos que se {{ diferencia > 0 ? 'descontarán' : 'devolverán' }} por unidad:
+                </p>
+                <table class="table table-sm table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Insumo</th>
+                            <th class="text-end">Cantidad por producto</th>
+                            <th class="text-end">Total ajuste</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let insumo of productoCompleto.insumos">
+                            <td>Insumo #{{ insumo.id_insumo }}</td>
+                            <td class="text-end">{{ insumo.cantidad }}</td>
+                            <td class="text-end">
+                                <span [class]="diferencia > 0 ? 'text-danger' : 'text-success'">
+                                    {{ diferencia > 0 ? '-' : '+'}}{{ insumo.cantidad * (diferencia > 0 ? diferencia :
+                                    -diferencia) }}
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div *ngIf="productoCompleto && (!productoCompleto.insumos || productoCompleto.insumos.length === 0) && diferencia !== 0"
+                class="alert alert-secondary">
+                <i class="bi bi-info-circle me-2"></i>
+                Este producto no tiene insumos asociados. Solo se actualizará el stock.
+            </div>
+
+            <div *ngIf="error" class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrar.emit()" [disabled]="loading">
+            Cancelar
+        </button>
+        <button type="button" class="btn btn-primary" (click)="guardarCambio()"
+            [disabled]="loading || loadingProducto || nuevoStock === null">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+            <i *ngIf="!loading" class="bi bi-save me-1"></i>
+            {{ loading ? 'Guardando' : 'Guardar cambio' }}
+        </button>
+    </div>
+</div>

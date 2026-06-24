@@ -116,8 +116,8 @@ export class FormProductos implements OnInit, OnDestroy {
       costo_mark_disenador: producto.costo_mark_disenador || 0,
       costo_admin: producto.costo_admin || 0,
       // costo_etiqueta: producto.costo_etiqueta || 0
-      porcentaje_ganancia_mayor: producto.porcentaje_ganancia_mayor || null,
-      porcentaje_ganancia_detal: producto.porcentaje_ganancia_detal || null
+      porcentaje_ganancia_mayor: producto.porcentaje_ganancia_mayor ?? null,
+      porcentaje_ganancia_detal: producto.porcentaje_ganancia_detal ?? null
     });
 
     this.productoFormulario.get('id')?.disable();
@@ -499,7 +499,9 @@ export class FormProductos implements OnInit, OnDestroy {
       costo_mark_redes: 0,
       costo_mark_disenador: 0,
       costo_admin: 0,
-      costo_etiqueta: 0
+      costo_etiqueta: 0,
+      porcentaje_ganancia_mayor: null,
+      porcentaje_ganancia_detal: null
     });
     this.productoFormulario.get('id')?.enable();
     this.insumos.clear();

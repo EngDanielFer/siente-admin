@@ -21,6 +21,7 @@ export class ListaStock implements OnInit {
   paginasTotales: number = 0;
 
   loading: boolean = false;
+  loadingEliminar: { [key: number]: boolean } = {};
 
   private subscription: Subscription = new Subscription();
 
@@ -37,18 +38,41 @@ export class ListaStock implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
+
   listarStock() {
     this.loading = true;
     this.stockService.getStock().subscribe({
       next: (data) => {
         this.stocks = data;
         this.calcularPaginacion();
-        console.log(this.stocks);
         this.loading = false;
       },
       error: (error) => {
         console.error('Error al obtener stock: ', error);
         this.loading = false;
+      }
+    })
+  }
+
+
+  eliminarLote(idProductoStock: number): void {
+    if (!confirm('¿Está seguro de que desea eliminar este lote vacío?')) return;
+
+    this.loadingEliminar[idProductoStock] = true;
+
+    this.stockService.deleteStockLote(idProductoStock).subscribe({
+      next: () => {
+        this.loadingEliminar[idProductoStock] = false;
+        this.listarStock();
+      },
+      error: (err) => {
+        this.loadingEliminar[idProductoStock] = false;
+        const msg = err?.error?.mensaje ?? 'Error al eliminar el lote';
+        alert(msg);
       }
     })
   }

@@ -1,0 +1,141 @@
+import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ProductosService } from '../../../../services/productos.service';
+import { StockService } from '../../../../services/stock.service';
+import { ProductoCompletoInterface } from '../../../../interfaces/producto-completo.interface';
+
+@Component({
+  selector: 'app-editar-stock',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './editar-stock.html',
+  styleUrl: './editar-stock.css',
+  encapsulation: ViewEncapsulation.None,
+})
+export class EditarStock implements OnInit {
+  @Input() productoId!: number;
+  @Input() stockActual!: number;
+  @Input() nombreProducto!: string;
+  @Output() cerrar = new EventEmitter<void>();
+  @Output() stockActualizado = new EventEmitter<void>();
+
+  nuevoStock: number | null = null;
+  diferencia: number = 0;
+  loading: boolean = false;
+  loadingProducto: boolean = false;
+  error: string = '';
+  submitted: boolean = false;
+
+  productoCompleto: ProductoCompletoInterface | null = null;
+
+  constructor(
+    private productosService: ProductosService,
+    private stockService: StockService
+  ) {}
+
+  ngOnInit(): void {
+      this.nuevoStock = this.stockActual;
+      this.cargarProductoCompleto();
+  }
+
+  cargarProductoCompleto(): void {
+    this.loadingProducto = true;
+    this.productosService.getProductoCompleto(this.productoId).subscribe({
+      next: (producto) => {
+        this.productoCompleto = producto;
+        this.loadingProducto = false;
+      },
+      error: () => {
+        this.error = 'No se pudo cargar la información del producto';
+        this.loadingProducto = false;
+      }
+    });
+  }
+
+  calcularDiferencia(): void {
+    if (this.nuevoStock !== null && this.nuevoStock !== undefined) {
+      this.diferencia = this.nuevoStock - this.stockActual;
+    } else {
+      this.diferencia = 0;
+    }
+  }
+
+  get descripcionCambio(): string {
+    if (this.diferencia === 0) {
+      return '';
+    }
+    if (this.diferencia > 0) {
+      return `Se aumentará el stock en ${this.diferencia} unidad(es). Los insumos de ${this.diferencia} producto(s) serán DESCONTADOS del inventario.`;
+    }
+    return `Se reducirá el stock en ${Math.abs(this.diferencia)} unidad(es). Los insumos de ${Math.abs(this.diferencia)} producto(s) serán DEVUELTOS al inventario.`;
+  }
+
+  get claseAlerta(): string {
+    if (this.diferencia === 0) {
+      return 'alert-secondary';
+    }
+    if (this.diferencia > 0) {
+      return 'alert-warning';
+    }
+    return 'alert-info'
+  }
+
+  get iconoAlerta(): string{
+    if (this.diferencia === 0) {
+      return 'bi-dash-circle';
+    }
+    if (this.diferencia > 0) {
+      return 'bi-arrow-down-circle';
+    }
+    return 'bi-arrow-up-circle';
+  }
+
+  onStockChange(): void {
+    this.calcularDiferencia();
+  }
+
+  guardarCambio(): void {
+    this.submitted = true;
+
+    if (this.nuevoStock === null || this.nuevoStock === undefined || this.nuevoStock < 0) {
+      return;
+    }
+
+    if (this.diferencia === 0) {
+      this.cerrar.emit();
+      return;
+    }
+
+    this.loading = true;
+    this.error = ''
+
+    this.stockService.updateStock(this.productoId, {
+      cantidad_producto: this.nuevoStock,
+      diferencia: this.diferencia,
+    }).subscribe({
+      next: () => {
+        this.loading = false;
+        this.stockActualizado.emit();
+        this.cerrar.emit();
+      },
+      error: (err) => {
+        this.loading = false;
+        if (err.status === 200 || err.status === 201) {
+          this.stockActualizado.emit();
+          this.cerrar.emit();
+          return;
+        }
+        if (err.error?.message) {
+          this.error = err.error.message;
+        } else if (err.status === 400) {
+          this.error = 'Datos inválidos. Verifique el stock ingresado.';
+        } else if (err.status === 422) {
+          this.error = 'Insumos insuficientes para realizar este ajuste.';
+        } else {
+          this.error = 'Error al actualizar el stock. Intente nuevamente.';
+        }
+      },
+    });
+  }
+}

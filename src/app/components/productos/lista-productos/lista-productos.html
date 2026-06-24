@@ -69,14 +69,17 @@
                         <td>{{ prod.precio_detal }}</td>
                         <td>{{ prod.stock_producto }}</td>
                         <td>
-                            <button class="btn btn-primary btn-sm" (click)="editarProducto(prod.id!)">Actualizar</button>
+                            <button class="btn btn-primary btn-sm"
+                                (click)="editarProducto(prod.id!)">Actualizar</button>
+                            <button class="btn btn-success btn-sm" (click)="verEditarStock(prod)">Editar stock</button>
                             <button class="btn btn-info btn-sm" (click)="verCostosFijos(prod.id!)">
                                 Costos Fijos
                             </button>
                             <button class="btn btn-warning btn-sm" (click)="verInsumos(prod.id!)">
                                 Insumos
                             </button>
-                            <button class="btn btn-danger btn-sm" (click)="confirmarEliminar(prod.id!)">Eliminar</button>
+                            <button class="btn btn-danger btn-sm"
+                                (click)="confirmarEliminar(prod.id!)">Eliminar</button>
                         </td>
                     </tr>
 
@@ -123,3 +126,7 @@
 
 <app-insumos-productos *ngIf="mostrarInsumos" [productoId]="productoSelecId!" (cerrar)="cerrarModal()">
 </app-insumos-productos>
+
+<app-editar-stock *ngIf="mostrarEditarStock" [productoId]="productoSelecId!" [stockActual]="productoSelecStock"
+    [nombreProducto]="productoSelecNombre" (cerrar)="cerrarModal()"
+    (stockActualizado)="onStockActualizado()"></app-editar-stock>
