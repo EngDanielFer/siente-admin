@@ -1,20 +1,26 @@
 import { Component, OnInit } from '@angular/core';
-import { StockInterface } from '../../../interfaces/stock.interface';
+import { StockBajoInterface, StockInterface } from '../../../interfaces/stock.interface';
 import { StockService } from '../../../services/stock.service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { SharedStockService } from '../../../services/shared/shared-stock.service';
 
 @Component({
   selector: 'app-lista-stock',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './lista-stock.html',
   styleUrl: './lista-stock.css',
 })
 export class ListaStock implements OnInit {
 
   stocks: StockInterface[] = [];
+  stocksFiltrados: StockInterface[] = [];
   stocksPorPagina: StockInterface[] = [];
+
+  stocksBajos: StockBajoInterface[] = [];
+
+  terminoBusqueda: string = '';
 
   paginaActual: number = 1;
   itemStocksPorPagina: number = 10;
@@ -32,9 +38,11 @@ export class ListaStock implements OnInit {
 
   ngOnInit(): void {
     this.listarStock();
+    this.cargarStocksBajos();
 
     this.subscription = this.sharedStockService.cambio$.subscribe(() => {
       this.listarStock();
+      this.cargarStocksBajos();
     });
   }
 
@@ -48,7 +56,7 @@ export class ListaStock implements OnInit {
     this.stockService.getStock().subscribe({
       next: (data) => {
         this.stocks = data;
-        this.calcularPaginacion();
+        this.aplicarFiltro();
         this.loading = false;
       },
       error: (error) => {
@@ -58,6 +66,40 @@ export class ListaStock implements OnInit {
     })
   }
 
+  cargarStocksBajos(): void {
+    this.stockService.getLowStock().subscribe({
+      next: (data) => {
+        this.stocksBajos = data;
+      },
+      error: (err) => {
+        console.error('Error al cargar alertas de stock', err);
+      }
+    });
+  }
+
+  onBusqueda(): void {
+    this.paginaActual = 1;
+    this.aplicarFiltro();
+  }
+
+  limpiarBusqueda(): void {
+    this.terminoBusqueda = '';
+    this.paginaActual = 1;
+    this.aplicarFiltro();
+  }
+
+  private aplicarFiltro(): void {
+    const termino = this.terminoBusqueda.toLowerCase().trim();
+    if (!termino) {
+      this.stocksFiltrados = [...this.stocks];
+    } else {
+      this.stocksFiltrados = this.stocks.filter(s =>
+        s.nombre_producto.toLowerCase().includes(termino) ||
+        String(s.id_producto).includes(termino)
+      );
+    }
+    this.calcularPaginacion();
+  }
 
   eliminarLote(idProductoStock: number): void {
     if (!confirm('¿Está seguro de que desea eliminar este lote vacío?')) return;

@@ -27,12 +27,23 @@
                 placeholder="Ingrese la cantidad" required>
         </div>
         <div class="mb-3 col-md-6">
+            <label for="cantidadMinima" class="form-label">
+                Cantidad mínima
+                <span class="badge bg-info text-dark ms-1">Opcional</span>
+            </label>
+            <input type="number" class="form-control" id="cantidadMinima" name="cantidadMinima"
+                [(ngModel)]="insumo.cantidad_minima" placeholder="Ej: 500 (se alertará si está por debajo)">
+            <div class="form-text text-muted">
+                Se mostrará una alerta cuando la cantidad restante esté por debajo de este valor.
+            </div>
+        </div>
+        <div class="mb-3 col-md-6">
             <label for="proveedorInsumo" class="form-label">
                 Proveedor
                 <span *ngIf="modoEdicion" class="badge bg-secondary ms-1">Solo lectura</span>
             </label>
             <input type="text" class="form-control" id="proveedorInsumo" name="proveedorInsumo"
-                [(ngModel)]="insumo.proveedor_insumo" [disabled]="modoEdicion" [class.bg-light]="modoEdicion" required>
+                [(ngModel)]="insumo.proveedor_insumo" required>
         </div>
         <div class="mb-3 col-md-6">
             <label for="precioInsumo" class="form-label">

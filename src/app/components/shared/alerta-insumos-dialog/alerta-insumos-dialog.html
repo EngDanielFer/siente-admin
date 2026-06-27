@@ -8,30 +8,67 @@
         Estos insumos requieren de tu atención, por lo cual se deben actualizar antes de crear nuevos productos:
     </p>
 
-    <div class="table-responsive">
-        <table class="table table-sm table-bordered">
-            <thead class="table-warning">
-                <tr>
-                    <th>Insumo</th>
-                    <th class="text-end">Cantidad restante</th>
-                    <th>Proveedor</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let insumo of data.insumos">
-                    <td class="fw-semibold">{{ insumo.nombre_insumo }}</td>
-                    <td class="text-end text-danger fw-bold">
-                        {{ insumo.cantidad_insumo_restante ?? 0 }}
-                    </td>
-                    <td>{{ insumo.proveedor_insumo }}</td>
-                </tr>
-            </tbody>
-        </table>
+    <div *ngIf="data.insumos && data.insumos.length > 0" class="mb-4">
+        <h6 class="text-danger fw-bold mb-2">
+            🧪 Insumos con cantidad baja
+        </h6>
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered">
+                <thead class="table-warning">
+                    <tr>
+                        <th>Insumo</th>
+                        <th class="text-end">Cantidad restante</th>
+                        <th>Proveedor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let insumo of data.insumos">
+                        <td class="fw-semibold">{{ insumo.nombre_insumo }}</td>
+                        <td class="text-end text-danger fw-bold">
+                            {{ insumo.cantidad_insumo_restante ?? 0 }}
+                        </td>
+                        <td>{{ insumo.proveedor_insumo }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="alert alert-warning mt-2 mb-0">
+            <strong>Acción requerida:</strong> Ve a la sección de Insumos para agregar más cantidad de los insumos
+            anteriormente listados
+        </div>
     </div>
 
-    <div class="alert alert-warning mt-2 mb-0">
-        <strong>Acción requerida:</strong> Ve a la sección de Insumos para agregar más cantidad de los insumos anteriormente listados
+    <div *ngIf="data.stock && data.stock.length > 0" class="mb-2">
+        <h6 class="text-danger fw-bold mb-2">
+            📦 Productos con stock bajo
+        </h6>
+        <p class="mb-2 text-muted small">
+            Estos productos tienen stock por debajo del mínimo configurado:
+        </p>
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered">
+                <thead class="table-warning">
+                    <tr>
+                        <th>Producto</th>
+                        <th class="text-end">Stock actual</th>
+                        <th class="text-end">Stock mínimo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let prod of data.stock">
+                        <td class="fw-semibold">{{ prod.nombre_producto }}</td>
+                        <td class="text-end text-danger fw-bold">{{ prod.stock_producto }}</td>
+                        <td class="text-end text-muted">{{ prod.stock_minimo }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="alert alert-warning py-2 mb-0 small">
+            <strong>Acción:</strong> Ve a <strong>Stock</strong> o <strong>Productos</strong> para agregar más stock.
+        </div>
     </div>
+
+
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">

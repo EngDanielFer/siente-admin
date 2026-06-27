@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { StockInterface } from '../interfaces/stock.interface';
+import { StockBajoInterface, StockInterface } from '../interfaces/stock.interface';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -15,6 +15,10 @@ export class StockService {
 
   getStock(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
+  }
+
+  getLowStock(): Observable<StockBajoInterface[]> {
+    return this.http.get<StockBajoInterface[]>(`${this.apiUrl}/bajo-stock`);
   }
 
   createStock(payload: { id_producto: number; cantidad_producto: number }): Observable<any> {

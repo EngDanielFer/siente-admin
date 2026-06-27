@@ -19,10 +19,8 @@ export class FormInsumos implements OnInit, OnDestroy {
   insumo: InsumosInterface = this.insumoVacio();
 
   mostrarFormulario = false;
-
   modoEdicion = false;
   loading = false;
-
   editandoPrecioManual = false;
 
   private subscription = new Subscription();
@@ -40,6 +38,7 @@ export class FormInsumos implements OnInit, OnDestroy {
           this.insumo = { ...insumo };
           this.modoEdicion = true;
           this.editandoPrecioManual = false;
+          this.sharedInsumoService.setMostrarFormulario(true);
           this.recalcularPrecio();
         } else {
           this.limpiarFormulario();
@@ -72,7 +71,7 @@ export class FormInsumos implements OnInit, OnDestroy {
     }
   }
 
-  
+
   onPrecioManualChange(): void {
     if (this.editandoPrecioManual) {
       this.insumo.precio_por_g_ml = this.calcularPrecioPorUnidad();
@@ -124,7 +123,8 @@ export class FormInsumos implements OnInit, OnDestroy {
         nombre_insumo: this.insumo.nombre_insumo,
         cantidad_insumo_total: this.insumo.cantidad_insumo_total,
         proveedor_insumo: this.insumo.proveedor_insumo,
-        precio_insumo: this.insumo.precio_insumo
+        precio_insumo: this.insumo.precio_insumo,
+        cantidad_minima: this.insumo.cantidad_minima ?? null,
       };
 
       this.insumosService.createInsumo(nuevoInsumo).subscribe({
@@ -173,7 +173,8 @@ export class FormInsumos implements OnInit, OnDestroy {
       proveedor_insumo: '',
       precio_insumo: 0,
       precio_por_g_ml: 0,
-      estado_insumo: ''
+      estado_insumo: '',
+      cantidad_minima: null,
     }
   }
 }

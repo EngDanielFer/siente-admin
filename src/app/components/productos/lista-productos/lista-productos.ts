@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ProductosInterface } from '../../../interfaces/productos.interface';
 import { ProductosService } from '../../../services/productos.service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { SharedProductoService } from '../../../services/shared/shared-producto.service';
@@ -15,14 +16,17 @@ import { ConfirmDeleteDialog } from '../../insumos/lista-insumos/confirm-delete-
 @Component({
   selector: 'app-lista-productos',
   standalone: true,
-  imports: [CommonModule, CostosFijosProductos, InsumosProductos, EditarStock],
+  imports: [CommonModule, FormsModule, CostosFijosProductos, InsumosProductos, EditarStock],
   templateUrl: './lista-productos.html',
   styleUrl: './lista-productos.css',
 })
 export class ListaProductos implements OnInit, OnDestroy {
 
   productos: ProductosInterface[] = [];
+  productosFiltrados: ProductosInterface[] = [];
   productosPorPagina: ProductosInterface[] = [];
+
+  terminoBusqueda: string = '';
 
   paginaActual: number = 1;
   itemProductosPorPagina: number = 10;
@@ -64,7 +68,7 @@ export class ListaProductos implements OnInit, OnDestroy {
     this.productosService.getProductos().subscribe({
       next: data => {
         this.productos = data;
-        this.calcularPaginacion();
+        this.aplicarFiltro();
         this.loading = false;
       },
       error: (error) => {
@@ -72,6 +76,31 @@ export class ListaProductos implements OnInit, OnDestroy {
         this.loading = false;
       }
     });
+  }
+
+  onBusqueda(): void {
+    this.paginaActual = 1;
+    this.aplicarFiltro();
+  }
+ 
+  limpiarBusqueda(): void {
+    this.terminoBusqueda = '';
+    this.paginaActual = 1;
+    this.aplicarFiltro();
+  }
+
+  private aplicarFiltro(): void {
+    const termino = this.terminoBusqueda.toLowerCase().trim();
+    if (!termino) {
+      this.productosFiltrados = [...this.productos];
+    } else {
+      this.productosFiltrados = this.productos.filter(p =>
+        p.nombre_producto.toLowerCase().includes(termino) ||
+        (p.descripcion_producto ?? '').toLowerCase().includes(termino) ||
+        String(p.id).includes(termino)
+      );
+    }
+    this.calcularPaginacion();
   }
 
   editarProducto(id: number): void {

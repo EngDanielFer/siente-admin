@@ -7,6 +7,22 @@
     </div>
 
     <div *ngIf="!loading">
+        <div class="row mt-3 mb-3">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text">🔍</span>
+                    <input type="text" class="form-control" placeholder="Buscar por nombre, descripción o ID..."
+                        [(ngModel)]="terminoBusqueda" (ngModelChange)="onBusqueda()">
+                    <button *ngIf="terminoBusqueda" class="btn btn-outline-secondary" type="button"
+                        (click)="limpiarBusqueda()">
+                        ✕
+                    </button>
+                </div>
+                <small *ngIf="terminoBusqueda" class="text-muted">
+                    {{ productosFiltrados.length }} resultado(s) para "{{ terminoBusqueda }}"
+                </small>
+            </div>
+        </div>
         <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
             <div>
                 Mostrando {{ (paginaActual - 1) * itemProductosPorPagina + 1 }} -

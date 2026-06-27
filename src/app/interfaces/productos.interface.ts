@@ -8,6 +8,7 @@ export interface ProductosInterface {
     precio_por_mayor: number,
     precio_detal: number,
     stock_producto?: number,
+    stock_minimo?: number | null;
     id?: number,
     imagen_producto?: string
 }

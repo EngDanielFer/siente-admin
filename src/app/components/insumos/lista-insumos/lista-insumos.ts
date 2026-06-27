@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { InsumosService } from '../../../services/insumos.service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { InsumosInterface } from '../../../interfaces/insumos.interface';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDeleteDialog } from './confirm-delete-dialog/confirm-delete-dialog';
@@ -11,14 +12,19 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-lista-insumos',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './lista-insumos.html',
   styleUrl: './lista-insumos.css',
 })
 export class ListaInsumos implements OnInit, OnDestroy {
 
   insumos: InsumosInterface[] = [];
+  insumosFiltrados: InsumosInterface[] = [];
   insumosPorPagina: InsumosInterface[] = [];
+
+  insumosConAlerta: InsumosInterface[] = [];
+
+  terminoBusqueda: string = '';
 
   paginaActual: number = 1;
   itemInsumosPorPagina: number = 10;
@@ -52,6 +58,11 @@ export class ListaInsumos implements OnInit, OnDestroy {
     this.insumosService.getInsumos().subscribe({
       next: (data) => {
         this.insumos = data;
+        this.insumosConAlerta = data.filter(i =>
+          (i.cantidad_minima != null && (i.cantidad_insumo_restante ?? 0) < i.cantidad_minima) ||
+          i.estado_insumo === 'Agregar más insumos'
+        );
+        this.aplicarFiltro();
         this.calcularPaginacion();
         this.loading = false;
       },
@@ -60,6 +71,31 @@ export class ListaInsumos implements OnInit, OnDestroy {
         this.loading = false;
       }
     })
+  }
+
+  onBusqueda(): void {
+    this.paginaActual = 1;
+    this.aplicarFiltro();
+  }
+
+  limpiarBusqueda(): void {
+    this.terminoBusqueda = '';
+    this.paginaActual = 1;
+    this.aplicarFiltro();
+  }
+
+  private aplicarFiltro(): void {
+    const termino = this.terminoBusqueda.toLowerCase().trim();
+    if (!termino) {
+      this.insumosFiltrados = [...this.insumos];
+    } else {
+      this.insumosFiltrados = this.insumos.filter(i =>
+        i.nombre_insumo.toLowerCase().includes(termino) ||
+        i.proveedor_insumo.toLowerCase().includes(termino) ||
+        (i.estado_insumo ?? '').toLowerCase().includes(termino)
+      );
+    }
+    this.calcularPaginacion();
   }
 
   editarInsumo(insumo: InsumosInterface) {
@@ -99,6 +135,13 @@ export class ListaInsumos implements OnInit, OnDestroy {
         this.mostrarError(msg);
       }
     })
+  }
+
+  esBajoStock(insumo: InsumosInterface): boolean {
+    if (insumo.cantidad_minima != null) {
+      return (insumo.cantidad_insumo_restante ?? 0) < insumo.cantidad_minima;
+    }
+    return insumo.estado_insumo === 'Agregar más insumos';
   }
 
 

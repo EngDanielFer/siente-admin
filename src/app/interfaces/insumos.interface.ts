@@ -6,5 +6,7 @@ export interface InsumosInterface {
     precio_insumo: number;
     precio_por_g_ml?: number;
     estado_insumo?: string;
+    cantidad_minima?: number | null;
+    fecha_actualizacion?: string | null;
     id?: number;
 }

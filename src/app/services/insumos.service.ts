@@ -21,6 +21,10 @@ export class InsumosService {
     return this.http.get<InsumosInterface>(`${this.apiUrl}/${id}`);
   }
 
+  getLowStock(): Observable<InsumosInterface[]> {
+    return this.http.get<InsumosInterface[]>(`${this.apiUrl}/bajo-stock`);
+  }
+
   createInsumo(insumo: InsumosInterface): Observable<InsumosInterface> {
     return this.http.post<InsumosInterface>(this.apiUrl, insumo);
   }
