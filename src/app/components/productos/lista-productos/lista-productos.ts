@@ -82,7 +82,7 @@ export class ListaProductos implements OnInit, OnDestroy {
     this.paginaActual = 1;
     this.aplicarFiltro();
   }
- 
+
   limpiarBusqueda(): void {
     this.terminoBusqueda = '';
     this.paginaActual = 1;
@@ -212,14 +212,14 @@ export class ListaProductos implements OnInit, OnDestroy {
   }
 
   calcularPaginacion(): void {
-    this.paginasTotales = Math.ceil(this.productos.length / this.itemProductosPorPagina);
+    this.paginasTotales = Math.ceil(this.productosFiltrados.length / this.itemProductosPorPagina);
     this.actualizarProductosPorPagina();
   }
 
   actualizarProductosPorPagina(): void {
     const inicio = (this.paginaActual - 1) * this.itemProductosPorPagina;
     const fin = inicio + this.itemProductosPorPagina;
-    this.productosPorPagina = this.productos.slice(inicio, fin);
+    this.productosPorPagina = this.productosFiltrados.slice(inicio, fin);
   }
 
   cambiarPagina(paginaNueva: number): void {
@@ -230,7 +230,7 @@ export class ListaProductos implements OnInit, OnDestroy {
   }
 
   calcularFin(): number {
-    return Math.min(this.paginaActual * this.itemProductosPorPagina, this.productos.length);
+    return Math.min(this.paginaActual * this.itemProductosPorPagina, this.productosFiltrados.length);
   }
 
   paginaAnterior(): void {

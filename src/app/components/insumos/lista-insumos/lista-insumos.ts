@@ -63,14 +63,13 @@ export class ListaInsumos implements OnInit, OnDestroy {
           i.estado_insumo === 'Agregar más insumos'
         );
         this.aplicarFiltro();
-        this.calcularPaginacion();
         this.loading = false;
       },
-      error: (error) => {
+      error: () => {
         this.mostrarError('Error al cargar los insumos');
         this.loading = false;
       }
-    })
+    });
   }
 
   onBusqueda(): void {
@@ -159,15 +158,16 @@ export class ListaInsumos implements OnInit, OnDestroy {
     });
   }
 
+  // Corregir para que use insumosFiltrados:
   calcularPaginacion() {
-    this.paginasTotales = Math.ceil(this.insumos.length / this.itemInsumosPorPagina);
+    this.paginasTotales = Math.ceil(this.insumosFiltrados.length / this.itemInsumosPorPagina);
     this.actualizarInsumosPorPagina();
   }
 
   actualizarInsumosPorPagina() {
     const inicio = (this.paginaActual - 1) * this.itemInsumosPorPagina;
     const fin = inicio + this.itemInsumosPorPagina;
-    this.insumosPorPagina = this.insumos.slice(inicio, fin);
+    this.insumosPorPagina = this.insumosFiltrados.slice(inicio, fin); // ← insumosFiltrados
   }
 
   cambiarPagina(paginaNueva: number) {
@@ -178,7 +178,7 @@ export class ListaInsumos implements OnInit, OnDestroy {
   }
 
   calcularFin(): number {
-    return Math.min(this.paginaActual * this.itemInsumosPorPagina, this.insumos.length);
+    return Math.min(this.paginaActual * this.itemInsumosPorPagina, this.insumosFiltrados.length);
   }
 
   paginaAnterior() {

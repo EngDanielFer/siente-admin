@@ -120,14 +120,14 @@ export class ListaStock implements OnInit {
   }
 
   calcularPaginacion() {
-    this.paginasTotales = Math.ceil(this.stocks.length / this.itemStocksPorPagina);
+    this.paginasTotales = Math.ceil(this.stocksFiltrados.length / this.itemStocksPorPagina);
     this.actualizarStocksPorPagina();
   }
 
   actualizarStocksPorPagina() {
     const inicio = (this.paginaActual - 1) * this.itemStocksPorPagina;
     const fin = inicio + this.itemStocksPorPagina;
-    this.stocksPorPagina = this.stocks.slice(inicio, fin);
+    this.stocksPorPagina = this.stocksFiltrados.slice(inicio, fin); // ← stocksFiltrados
   }
 
   cambiarPagina(paginaNueva: number) {
@@ -138,7 +138,7 @@ export class ListaStock implements OnInit {
   }
 
   calcularFin(): number {
-    return Math.min(this.paginaActual + this.itemStocksPorPagina, this.stocks.length);
+    return Math.min(this.paginaActual * this.itemStocksPorPagina, this.stocksFiltrados.length); 
   }
 
   paginaAnterior() {
