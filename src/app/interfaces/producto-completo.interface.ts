@@ -10,6 +10,7 @@ export interface ProductoCompletoInterface {
     precio_por_mayor?: number;
     precio_detal?: number;
     stock_producto?: number;
+    stock_minimo?: number | null;
     insumos: InsumoProductoInterface[];
     costo_luz: number;
     costo_agua: number;

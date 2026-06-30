@@ -61,6 +61,18 @@
             </div>
 
             <div class="mb-3 col-md-6">
+                <label for="stockMinimo" class="form_label">
+                    Stock mínimo
+                    <span class="badge bg-info text-dark ms-1">Opcional</span>
+                </label>
+                <input type="number" class="form-control" formControlName="stock_minimo" id="stockMinimo"
+                    name="stockMinimo" min="0">
+                <div class="form-text text-muted">
+                    Se mostrará una alerta cuando el stock del producto esté por debajo de este valor.
+                </div>
+            </div>
+
+            <div class="mb-3 col-md-6">
                 <label for="imagenProducto" class="form-label">
                     {{ modoEdicion ? 'Cambiar Imagen (opcional)' : 'Subir Imagen' }}
                 </label>

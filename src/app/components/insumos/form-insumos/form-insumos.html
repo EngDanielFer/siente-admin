@@ -8,10 +8,23 @@
     <h3 *ngIf="!modoEdicion" class="mb-3">Agregar Insumo</h3>
 
     <div class="alert alert-info mb-3" *ngIf="modoEdicion">
-        <i class="bi bi-info-circle me-1"></i>
-        En modo edición, el <strong>proveedor</strong> y el <strong>precio</strong> no se pueden modificar directamente.
-        El precio total se recalcula automáticamente al cambiar la cantidad, o puedes
-        <strong>editar el precio manualmente</strong> si cambió el costo del insumo.
+        <div class="row">
+            <div class="col-md-4">
+                <strong>Cantidad total actual:</strong> {{ cantidadOriginalTotal }}
+            </div>
+            <div class="col-md-4">
+                <strong>Cantidad restante actual:</strong> {{ cantidadOriginalRestante }}
+            </div>
+            <div class="col-md-4">
+                <strong>Cantidad mínima:</strong> {{ insumo.cantidad_minima ?? '—' }}
+            </div>
+        </div>
+        <hr class="my-2">
+        <small class="text-muted">
+            <i class="bi bi-info-circle me-1"></i>
+            Ingresa cuánto estás <strong>agregando</strong> al insumo.
+            Los totales se calcularán sumando esa cantidad a los valores actuales.
+        </small>
     </div>
 
     <form (ngSubmit)="onSubmit()" class="row g-3">

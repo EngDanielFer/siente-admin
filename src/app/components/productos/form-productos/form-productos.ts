@@ -69,6 +69,7 @@ export class FormProductos implements OnInit, OnDestroy {
       descripcion_producto: ['', Validators.required],
       peso_producto: [null, [Validators.required, Validators.min(1)]],
       imagen_producto: [null],
+      stock_minimo: [null, [Validators.min(0)]],
       insumos: this.formBuilder.array([]),
       costo_luz: [null, [Validators.required, Validators.min(0)]],
       costo_agua: [null, [Validators.required, Validators.min(0)]],
@@ -102,6 +103,7 @@ export class FormProductos implements OnInit, OnDestroy {
       nombre_producto: producto.nombre_producto,
       descripcion_producto: producto.descripcion_producto,
       peso_producto: producto.peso_producto,
+      stock_minimo: producto.stock_minimo ?? null,
       costo_luz: producto.costo_luz || 0,
       costo_agua: producto.costo_agua || 0,
       costo_gas: producto.costo_gas || 0,
@@ -310,6 +312,9 @@ export class FormProductos implements OnInit, OnDestroy {
         descripcion_producto: formValue.descripcion_producto.trim(),
         peso_producto: Number(formValue.peso_producto),
         imagen_producto: imgBase64,
+        stock_minimo: formValue.stock_minimo !== null && formValue.stock_minimo !== ""
+          ? Number(formValue.stock_minimo)
+          : null,
         insumos: formValue.insumos.map((insumo: any) => ({
           id_insumo: Number(insumo.id_insumo),
           cantidad: Number(insumo.cantidad)
@@ -331,8 +336,6 @@ export class FormProductos implements OnInit, OnDestroy {
         porcentaje_ganancia_mayor: Number(formValue.porcentaje_ganancia_mayor || 30),
         porcentaje_ganancia_detal: Number(formValue.porcentaje_ganancia_detal || 50)
       };
-
-      console.log('Datos a enviar:', prodData);
 
       if (this.modoEdicion) {
         this.productosService.updateProducto(prodData.id, prodData)
@@ -486,6 +489,7 @@ export class FormProductos implements OnInit, OnDestroy {
       nombre_producto: '',
       descripcion_producto: '',
       peso_producto: 0,
+      stock_minimo: null,
       costo_luz: 0,
       costo_agua: 0,
       costo_gas: 0,

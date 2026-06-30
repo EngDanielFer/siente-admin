@@ -18,6 +18,11 @@ export class FormInsumos implements OnInit, OnDestroy {
 
   insumo: InsumosInterface = this.insumoVacio();
 
+  cantidadOriginalTotal: number = 0;
+  cantidadOriginalRestante: number = 0;
+
+  cantidadAAgregar: number = 0;
+
   mostrarFormulario = false;
   modoEdicion = false;
   loading = false;
@@ -65,8 +70,18 @@ export class FormInsumos implements OnInit, OnDestroy {
     }
   }
 
+  onCantidadAAgregarChange(): void {
+    const agregar = this.cantidadAAgregar ?? 0;
+    this.insumo.cantidad_insumo_total = this.cantidadOriginalTotal + agregar;
+    this.insumo.cantidad_insumo_restante = this.cantidadOriginalRestante + agregar;
+
+    if (!this.editandoPrecioManual) {
+      this.recalcularPrecio();
+    }
+  }
+
   onCantidadChange(): void {
-    if (this.modoEdicion && !this.editandoPrecioManual) {
+    if (!this.editandoPrecioManual) {
       this.recalcularPrecio();
     }
   }

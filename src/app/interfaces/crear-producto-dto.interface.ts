@@ -22,4 +22,5 @@ export interface CrearProductoDtoInterface {
     costo_etiqueta: number;
     porcentaje_ganancia_mayor: number;
     porcentaje_ganancia_detal: number;
+    stock_minimo: number | null;
 }
