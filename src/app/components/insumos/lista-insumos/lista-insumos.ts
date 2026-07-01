@@ -136,8 +136,14 @@ export class ListaInsumos implements OnInit, OnDestroy {
   }
 
   esBajoStock(insumo: InsumosInterface): boolean {
-    return insumo.cantidad_minima != null &&
-      (insumo.cantidad_insumo_restante ?? 0) <= insumo.cantidad_minima;
+    if (insumo.cantidad_minima == null) return false;
+
+    const restante = Number(insumo.cantidad_insumo_restante ?? 0);
+    const minima = Number(insumo.cantidad_minima);
+
+    if (isNaN(restante) || isNaN(minima)) return false;
+
+    return restante <= minima;
   }
 
 
