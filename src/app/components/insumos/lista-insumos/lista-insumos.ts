@@ -59,7 +59,7 @@ export class ListaInsumos implements OnInit, OnDestroy {
       next: (data) => {
         this.insumos = data;
         this.insumosConAlerta = data.filter(i =>
-          i.cantidad_minima != null && (i.cantidad_insumo_restante ?? 0) < i.cantidad_minima
+          i.cantidad_minima != null && (i.cantidad_insumo_restante ?? 0) <= i.cantidad_minima
         );
         this.aplicarFiltro();
         this.loading = false;
@@ -137,7 +137,7 @@ export class ListaInsumos implements OnInit, OnDestroy {
 
   esBajoStock(insumo: InsumosInterface): boolean {
     return insumo.cantidad_minima != null &&
-      (insumo.cantidad_insumo_restante ?? 0) < insumo.cantidad_minima;
+      (insumo.cantidad_insumo_restante ?? 0) <= insumo.cantidad_minima;
   }
 
 
