@@ -58,9 +58,7 @@ export class ListaInsumos implements OnInit, OnDestroy {
     this.insumosService.getInsumos().subscribe({
       next: (data) => {
         this.insumos = data;
-        this.insumosConAlerta = data.filter(i =>
-          i.cantidad_minima != null && (i.cantidad_insumo_restante ?? 0) <= i.cantidad_minima
-        );
+        this.insumosConAlerta = data.filter(i => this.esBajoStock(i));
         this.aplicarFiltro();
         this.loading = false;
       },
