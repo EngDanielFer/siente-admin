@@ -75,53 +75,55 @@
             </nav>
         </div>
 
-        <table *ngIf="!loading" class="table table-striped">
-            <thead>
-                <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">ID producto</th>
-                    <th scope="col">Producto</th>
-                    <th scope="col">Cantidad producto</th>
-                    <th scope="col">Stock mínimo</th>
-                    <th scope="col">Fecha</th>
-                    <th scope="col">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let stock of stocksPorPagina">
-                    <td>{{ stock.id_producto_stock }}</td>
-                    <td>{{ stock.id_producto }}</td>
-                    <td>{{ stock.nombre_producto }}</td>
-                    <td>
-                        <span [class.text-danger]="stock.cantidad_producto === 0"
-                            [class.fw-bold]="stock.cantidad_producto === 0">
-                            {{ stock.cantidad_producto }}
-                        </span>
-                    </td>
-                    <td>
-                        <span *ngIf="stock.stock_minimo != null" class="badge bg-secondary">
-                            {{ stock.stock_minimo }}
-                        </span>
-                        <span *ngIf="stock.stock_minimo == null" class="text-muted">—</span>
-                    </td>
-                    <td>{{ stock.fecha_insercion }}</td>
-                    <td>
-                        <button *ngIf="stock.cantidad_producto === 0" class="btn btn-danger btn-sm"
-                            (click)="eliminarLote(stock.id_producto_stock!)"
-                            [disabled]="loadingEliminar[stock.id_producto_stock!]">
-                            <span *ngIf="loadingEliminar[stock.id_producto_stock!]"
-                                class="spinner-border spinner-border-sm me-1"></span>
-                            Borrar
-                        </button>
-                    </td>
-                </tr>
-                <tr *ngIf="stocksPorPagina.length === 0">
-                    <td colspan="7" class="text-center text-muted py-4">
-                        No se encontraron registros de stock
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table *ngIf="!loading" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">ID producto</th>
+                        <th scope="col">Producto</th>
+                        <th scope="col">Cantidad producto</th>
+                        <th scope="col">Stock mínimo</th>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let stock of stocksPorPagina">
+                        <td>{{ stock.id_producto_stock }}</td>
+                        <td>{{ stock.id_producto }}</td>
+                        <td>{{ stock.nombre_producto }}</td>
+                        <td>
+                            <span [class.text-danger]="stock.cantidad_producto === 0"
+                                [class.fw-bold]="stock.cantidad_producto === 0">
+                                {{ stock.cantidad_producto }}
+                            </span>
+                        </td>
+                        <td>
+                            <span *ngIf="stock.stock_minimo != null" class="badge bg-secondary">
+                                {{ stock.stock_minimo }}
+                            </span>
+                            <span *ngIf="stock.stock_minimo == null" class="text-muted">—</span>
+                        </td>
+                        <td>{{ stock.fecha_insercion }}</td>
+                        <td>
+                            <button *ngIf="stock.cantidad_producto === 0" class="btn btn-danger btn-sm"
+                                (click)="eliminarLote(stock.id_producto_stock!)"
+                                [disabled]="loadingEliminar[stock.id_producto_stock!]">
+                                <span *ngIf="loadingEliminar[stock.id_producto_stock!]"
+                                    class="spinner-border spinner-border-sm me-1"></span>
+                                Borrar
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="stocksPorPagina.length === 0">
+                        <td colspan="7" class="text-center text-muted py-4">
+                            No se encontraron registros de stock
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
         <div *ngIf="!loading" class="d-flex justify-content-between align-items-center mt-3 mb-3">
             <div>
