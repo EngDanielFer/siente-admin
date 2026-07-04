@@ -32,11 +32,11 @@ export class EditarStock implements OnInit {
   constructor(
     private productosService: ProductosService,
     private stockService: StockService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-      this.nuevoStock = this.stockActual;
-      this.cargarProductoCompleto();
+    this.nuevoStock = this.stockActual;
+    this.cargarProductoCompleto();
   }
 
   cargarProductoCompleto(): void {
@@ -68,6 +68,9 @@ export class EditarStock implements OnInit {
     if (this.diferencia > 0) {
       return `Se aumentará el stock en ${this.diferencia} unidad(es). Los insumos de ${this.diferencia} producto(s) serán DESCONTADOS del inventario.`;
     }
+    if (this.nuevoStock === 0) {
+      return `Se reducirá el stock a 0. Los insumos utilizados en la producción NO serán devueltos.`;
+    }
     return `Se reducirá el stock en ${Math.abs(this.diferencia)} unidad(es). Los insumos de ${Math.abs(this.diferencia)} producto(s) serán DEVUELTOS al inventario.`;
   }
 
@@ -81,7 +84,7 @@ export class EditarStock implements OnInit {
     return 'alert-info'
   }
 
-  get iconoAlerta(): string{
+  get iconoAlerta(): string {
     if (this.diferencia === 0) {
       return 'bi-dash-circle';
     }
