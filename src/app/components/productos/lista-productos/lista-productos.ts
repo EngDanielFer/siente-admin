@@ -12,11 +12,12 @@ import { EditarStock } from './editar-stock/editar-stock';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmDeleteDialog } from '../../insumos/lista-insumos/confirm-delete-dialog/confirm-delete-dialog';
+import { AlertaInsumosBajos } from '../../shared/alerta-insumos-bajos/alerta-insumos-bajos';
 
 @Component({
   selector: 'app-lista-productos',
   standalone: true,
-  imports: [CommonModule, FormsModule, CostosFijosProductos, InsumosProductos, EditarStock],
+  imports: [CommonModule, FormsModule, CostosFijosProductos, InsumosProductos, EditarStock, AlertaInsumosBajos],
   templateUrl: './lista-productos.html',
   styleUrl: './lista-productos.css',
 })

@@ -21,8 +21,6 @@ export class FormInsumos implements OnInit, OnDestroy {
   cantidadOriginalTotal: number = 0;
   cantidadOriginalRestante: number = 0;
 
-  cantidadAAgregar: number = 0;
-
   mostrarFormulario = false;
   modoEdicion = false;
   loading = false;
@@ -41,6 +39,13 @@ export class FormInsumos implements OnInit, OnDestroy {
       insumo => {
         if (insumo) {
           this.insumo = { ...insumo };
+
+          this.cantidadOriginalTotal = Number(insumo.cantidad_insumo_total ?? 0);
+          this.cantidadOriginalRestante = Number(insumo.cantidad_insumo_restante ?? 0);
+
+          this.insumo.cantidad_insumo_total = this.cantidadOriginalTotal;
+          this.insumo.cantidad_insumo_restante = this.cantidadOriginalRestante;
+
           this.modoEdicion = true;
           this.editandoPrecioManual = false;
           this.sharedInsumoService.setMostrarFormulario(true);
@@ -70,17 +75,12 @@ export class FormInsumos implements OnInit, OnDestroy {
     }
   }
 
-  onCantidadAAgregarChange(): void {
-    const agregar = this.cantidadAAgregar ?? 0;
-    this.insumo.cantidad_insumo_total = this.cantidadOriginalTotal + agregar;
-    this.insumo.cantidad_insumo_restante = this.cantidadOriginalRestante + agregar;
-
-    if (!this.editandoPrecioManual) {
-      this.recalcularPrecio();
-    }
-  }
 
   onCantidadChange(): void {
+    if (this.modoEdicion) {
+      this.insumo.cantidad_insumo_restante = Number(this.insumo.cantidad_insumo_total) || 0;
+    }
+
     if (!this.editandoPrecioManual) {
       this.recalcularPrecio();
     }
@@ -168,6 +168,8 @@ export class FormInsumos implements OnInit, OnDestroy {
     this.insumo = this.insumoVacio();
     this.modoEdicion = false;
     this.editandoPrecioManual = false;
+    this.cantidadOriginalTotal = 0;
+    this.cantidadOriginalRestante = 0;
     this.sharedInsumoService.clearInsumoAEditar();
   }
 

@@ -1,0 +1,31 @@
+<div *ngIf="insumosConAlerta.length > 0" class="alert alert-danger mt-3 mb-3" role="alert">
+    <h6 class="alert-heading d-flex align-items-center gap-2 mb-2">
+        <span>⚠️</span>
+        {{ insumosConAlerta.length }} insumo(s) con cantidad baja
+    </h6>
+    <p class="mb-2 small">
+        Estos insumos están por debajo de su mínimo. Revísalos antes de agregar más productos.
+    </p>
+    <div class="table-responsive">
+        <table class="table table-sm table-bordered mb-0 bg-white">
+            <thead class="table-danger">
+                <tr>
+                    <th>Insumo</th>
+                    <th class="text-end">Restante</th>
+                    <th class="text-end">Mínimo</th>
+                    <th>Proveedor</th>
+                    <th>Últ. actualización</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let ins of insumosConAlerta">
+                    <td class="fw-semibold">{{ ins.nombre_insumo }}</td>
+                    <td class="text-end text-danger fw-bold">{{ ins.cantidad_insumo_restante ?? 0 }}</td>
+                    <td class="text-end">{{ ins.cantidad_minima ?? '—' }}</td>
+                    <td>{{ ins.proveedor_insumo }}</td>
+                    <td>{{ ins.fecha_actualizacion ? (ins.fecha_actualizacion | date:'dd/MM/yyyy HH:mm') : '—' }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
