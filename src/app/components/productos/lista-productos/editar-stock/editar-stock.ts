@@ -68,10 +68,7 @@ export class EditarStock implements OnInit {
     if (this.diferencia > 0) {
       return `Se aumentará el stock en ${this.diferencia} unidad(es). Los insumos de ${this.diferencia} producto(s) serán DESCONTADOS del inventario.`;
     }
-    if (this.nuevoStock === 0) {
-      return `Se reducirá el stock a 0. Los insumos utilizados en la producción NO serán devueltos.`;
-    }
-    return `Se reducirá el stock en ${Math.abs(this.diferencia)} unidad(es). Los insumos de ${Math.abs(this.diferencia)} producto(s) serán DEVUELTOS al inventario.`;
+    return `Se reducirá el stock en ${Math.abs(this.diferencia)} unidad(es). Los insumos utilizados en la producción NO serán devueltos.`;
   }
 
   get claseAlerta(): string {

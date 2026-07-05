@@ -58,7 +58,7 @@
                 </div>
             </div>
 
-            <div *ngIf="productoCompleto && productoCompleto.insumos && productoCompleto.insumos.length > 0 && diferencia !== 0  && nuevoStock !== 0"
+            <div *ngIf="productoCompleto && productoCompleto.insumos && productoCompleto.insumos.length > 0 && diferencia > 0"
                 class="insumos-afectados mb-3">
                 <p class="fw-semibold mb-2">
                     <i class="bi bi-box-seam me-1"></i>
