@@ -74,7 +74,7 @@
                     </thead>
                     <tbody>
                         <tr *ngFor="let insumo of productoCompleto.insumos">
-                            <td>Insumo #{{ insumo.id_insumo }}</td>
+                            <td>{{ insumo.nombre_insumo }}</td>
                             <td class="text-end">{{ insumo.cantidad }}</td>
                             <td class="text-end">
                                 <span [class]="diferencia > 0 ? 'text-danger' : 'text-success'">

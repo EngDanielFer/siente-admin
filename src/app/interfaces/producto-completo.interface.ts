@@ -33,5 +33,6 @@ export interface ProductoCompletoInterface {
 
 export interface InsumoProductoInterface {
     id_insumo: number;
+    nombre_insumo: string;
     cantidad: number;
 }
