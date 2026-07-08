@@ -5,6 +5,14 @@ import { ProductosService } from '../../../../services/productos.service';
 import { StockService } from '../../../../services/stock.service';
 import { ProductoCompletoInterface } from '../../../../interfaces/producto-completo.interface';
 
+export interface InsumoInsuficiente {
+  nombre_insumo: string;
+  cantidad_por_unidad?: number;
+  cantidad_necesaria: number;
+  cantidad_disponible: number;
+  cantidad_faltante?: number;
+  cantidad_minima?: number | null;
+}
 @Component({
   selector: 'app-editar-stock',
   standalone: true,
@@ -26,6 +34,8 @@ export class EditarStock implements OnInit {
   loadingProducto: boolean = false;
   error: string = '';
   submitted: boolean = false;
+
+  insumosInsuficientes: InsumoInsuficiente[] = [];
 
   productoCompleto: ProductoCompletoInterface | null = null;
 
@@ -93,6 +103,8 @@ export class EditarStock implements OnInit {
 
   onStockChange(): void {
     this.calcularDiferencia();
+    this.error = '';
+    this.insumosInsuficientes = [];
   }
 
   guardarCambio(): void {
@@ -109,6 +121,7 @@ export class EditarStock implements OnInit {
 
     this.loading = true;
     this.error = ''
+    this.insumosInsuficientes = [];
 
     this.stockService.updateStock(this.productoId, {
       cantidad_producto: this.nuevoStock,
@@ -121,17 +134,23 @@ export class EditarStock implements OnInit {
       },
       error: (err) => {
         this.loading = false;
+        this.insumosInsuficientes = [];
+
         if (err.status === 200 || err.status === 201) {
           this.stockActualizado.emit();
           this.cerrar.emit();
           return;
         }
-        if (err.error?.message) {
+        if (err.status === 422) {
+          this.error = err.error?.mensaje || err.error?.message
+            || 'Insumos insuficientes para realizar este ajuste.';
+          this.insumosInsuficientes = err.error?.insumos ?? [];
+        } else if (err.error?.mensaje) {
+          this.error = err.error.mensaje;
+        } else if (err.error?.message) {
           this.error = err.error.message;
         } else if (err.status === 400) {
           this.error = 'Datos inválidos. Verifique el stock ingresado.';
-        } else if (err.status === 422) {
-          this.error = 'Insumos insuficientes para realizar este ajuste.';
         } else {
           this.error = 'Error al actualizar el stock. Intente nuevamente.';
         }

@@ -96,6 +96,38 @@
             <div *ngIf="error" class="alert alert-danger">
                 <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
             </div>
+
+            <div *ngIf="insumosInsuficientes.length > 0" class="insumos-insuficientes mb-3">
+                <p class="fw-semibold text-danger mb-2">
+                    <i class="bi bi-x-octagon me-1"></i>
+                    Insumos insuficientes para este ajuste:
+                </p>
+                <table class="table table-sm table-bordered mb-2">
+                    <thead class="table-danger">
+                        <tr>
+                            <th>Insumo</th>
+                            <th class="text-end">Necesario</th>
+                            <th class="text-end">Disponible</th>
+                            <th class="text-end">Falta</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let insumo of insumosInsuficientes">
+                            <td class="fw-semibold">{{ insumo.nombre_insumo }}</td>
+                            <td class="text-end">{{ insumo.cantidad_necesaria }}</td>
+                            <td class="text-end text-danger fw-bold">{{ insumo.cantidad_disponible }}</td>
+                            <td class="text-end text-danger fw-bold">
+                                {{ insumo.cantidad_faltante ?? (insumo.cantidad_necesaria - insumo.cantidad_disponible)
+                                }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="alert alert-info mb-0 py-2 small">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Agrega más de estos insumos en la sección <strong>Insumos</strong> o reduce el nuevo stock.
+                </div>
+            </div>
         </div>
 
     </div>

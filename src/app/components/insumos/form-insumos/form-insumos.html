@@ -10,9 +10,6 @@
     <div class="alert alert-info mb-3" *ngIf="modoEdicion">
         <div class="row">
             <div class="col-md-4">
-                <strong>Cantidad total actual:</strong> {{ cantidadOriginalTotal }}
-            </div>
-            <div class="col-md-4">
                 <strong>Cantidad restante actual:</strong> {{ cantidadOriginalRestante }}
             </div>
             <div class="col-md-4">
@@ -22,8 +19,8 @@
         <hr class="my-2">
         <small class="text-muted">
             <i class="bi bi-info-circle me-1"></i>
-            Ingresa cuánto estás <strong>agregando</strong> al insumo.
-            Los totales se calcularán sumando esa cantidad a los valores actuales.
+            Ingresa la <strong>cantidad restante real</strong> del insumo.
+            Este valor reemplazará la cantidad actual registrada.
         </small>
     </div>
 
@@ -36,7 +33,7 @@
         <div class="mb-3 col-md-6">
             <label for="cantidadInsumo" class="form-label">Cantidad del insumo (en g o ml)</label>
             <input type="number" class="form-control" id="cantidadInsumo" name="cantidadInsumo"
-                [(ngModel)]="insumo.cantidad_insumo_total" (ngModelChange)="onCantidadChange()"
+                [(ngModel)]="insumo.cantidad_insumo_restante" (ngModelChange)="onCantidadChange()"
                 placeholder="Ingrese la cantidad" required>
         </div>
         <div class="mb-3 col-md-6">

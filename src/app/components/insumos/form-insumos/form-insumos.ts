@@ -43,8 +43,8 @@ export class FormInsumos implements OnInit, OnDestroy {
           this.cantidadOriginalTotal = Number(insumo.cantidad_insumo_total ?? 0);
           this.cantidadOriginalRestante = Number(insumo.cantidad_insumo_restante ?? 0);
 
-          this.insumo.cantidad_insumo_total = this.cantidadOriginalTotal;
           this.insumo.cantidad_insumo_restante = this.cantidadOriginalRestante;
+          this.insumo.cantidad_insumo_total = this.cantidadOriginalTotal;
 
           this.modoEdicion = true;
           this.editandoPrecioManual = false;
@@ -78,7 +78,7 @@ export class FormInsumos implements OnInit, OnDestroy {
 
   onCantidadChange(): void {
     if (this.modoEdicion) {
-      this.insumo.cantidad_insumo_restante = Number(this.insumo.cantidad_insumo_total) || 0;
+      this.insumo.cantidad_insumo_total = Number(this.insumo.cantidad_insumo_restante) || 0;
     }
 
     if (!this.editandoPrecioManual) {
@@ -95,18 +95,20 @@ export class FormInsumos implements OnInit, OnDestroy {
 
   recalcularPrecio(): void {
     const precioUnitario = this.insumo.precio_por_g_ml ?? 0;
-    const cantidad = this.insumo.cantidad_insumo_total ?? 0;
+    const cantidad = this.insumo.cantidad_insumo_restante ?? 0;
     this.insumo.precio_insumo = precioUnitario * cantidad;
   }
 
   calcularPrecioPorUnidad(): number {
     const precio = this.insumo.precio_insumo ?? 0;
-    const cantidad = this.insumo.cantidad_insumo_total ?? 1;
+    const cantidad = this.insumo.cantidad_insumo_restante ?? 1;
     return cantidad > 0 ? precio / cantidad : 0;
   }
 
   onSubmit() {
     this.loading = true;
+
+    this.insumo.cantidad_insumo_total = Number(this.insumo.cantidad_insumo_restante) || 0;
 
     if (this.modoEdicion) {
       if (this.editandoPrecioManual) {
@@ -137,6 +139,7 @@ export class FormInsumos implements OnInit, OnDestroy {
       const nuevoInsumo: InsumosInterface = {
         nombre_insumo: this.insumo.nombre_insumo,
         cantidad_insumo_total: this.insumo.cantidad_insumo_total,
+        cantidad_insumo_restante: this.insumo.cantidad_insumo_restante,
         proveedor_insumo: this.insumo.proveedor_insumo,
         precio_insumo: this.insumo.precio_insumo,
         cantidad_minima: this.insumo.cantidad_minima ?? null,
