@@ -9,11 +9,12 @@ import { Subscription } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CotizacionPdfService } from '../../../services/cotizacion-pdf.service';
 import { FacturaVentaPdfService } from '../../../services/factura-venta-pdf.service';
+import { NoWheelNumberDirective } from '../../../directives/no-wheel-number.directive';
 
 @Component({
   selector: 'app-form-facturas',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, CommonModule],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, NoWheelNumberDirective],
   templateUrl: './form-facturas.html',
   styleUrl: './form-facturas.css',
 })

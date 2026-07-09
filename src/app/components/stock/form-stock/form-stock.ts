@@ -12,10 +12,11 @@ import { InsumosFaltantesDialog } from '../../shared/insumos-faltantes-dialog/in
 import { InsumosService } from '../../../services/insumos.service';
 import { InsumosInterface } from '../../../interfaces/insumos.interface';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { NoWheelNumberDirective } from '../../../directives/no-wheel-number.directive';
 
 @Component({
   selector: 'app-form-stock',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, NoWheelNumberDirective],
   templateUrl: './form-stock.html',
   styleUrl: './form-stock.css',
 })

@@ -7,10 +7,11 @@ import { SharedProductoService } from '../../../services/shared/shared-producto.
 import { ProductosService } from '../../../services/productos.service';
 import { InsumosService } from '../../../services/insumos.service';
 import { ProductoCompletoInterface } from '../../../interfaces/producto-completo.interface';
+import { NoWheelNumberDirective } from '../../../directives/no-wheel-number.directive';
 
 @Component({
   selector: 'app-form-productos',
-  imports: [FormsModule, ReactiveFormsModule, CommonModule],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, NoWheelNumberDirective],
   templateUrl: './form-productos.html',
   styleUrl: './form-productos.css',
 })

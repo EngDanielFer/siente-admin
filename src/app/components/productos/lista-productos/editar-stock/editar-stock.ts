@@ -13,10 +13,11 @@ export interface InsumoInsuficiente {
   cantidad_faltante?: number;
   cantidad_minima?: number | null;
 }
+import { NoWheelNumberDirective } from '../../../../directives/no-wheel-number.directive';
 @Component({
   selector: 'app-editar-stock',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NoWheelNumberDirective],
   templateUrl: './editar-stock.html',
   styleUrl: './editar-stock.css',
   encapsulation: ViewEncapsulation.None,

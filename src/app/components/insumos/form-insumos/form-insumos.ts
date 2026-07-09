@@ -6,11 +6,12 @@ import { SharedInsumoService } from '../../../services/shared/shared-insumo.serv
 import { CommonModule } from '@angular/common';
 import { InsumosService } from '../../../services/insumos.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { NoWheelNumberDirective } from '../../../directives/no-wheel-number.directive';
 
 @Component({
   selector: 'app-form-insumos',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, CommonModule],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, NoWheelNumberDirective],
   templateUrl: './form-insumos.html',
   styleUrl: './form-insumos.css',
 })
