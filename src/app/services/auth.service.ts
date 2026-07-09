@@ -30,7 +30,7 @@ export class AuthService {
   private readonly USER_KEY = 'siente_user';
   private readonly apiUrl = `${environment.apiUrl}/api/auth`;
 
-  isLoggedIn = signal<boolean>(this.tieneToken());
+  isLoggedIn = signal<boolean>(this.hayTokenValido());
 
   constructor(
     private http: HttpClient,
@@ -52,10 +52,22 @@ export class AuthService {
   }
 
   logout(): void {
+    this.limpiarSesion();
+    this.router.navigate(['/login']);
+  }
+
+  estaAutenticado(): boolean {
+    if (this.hayTokenValido()) {
+      return true;
+    }
+    this.limpiarSesion();
+    return false;
+  }
+
+  private limpiarSesion(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     this.isLoggedIn.set(false);
-    this.router.navigate(['/login']);
   }
 
   getToken(): string | null {
@@ -66,7 +78,25 @@ export class AuthService {
     return localStorage.getItem(this.USER_KEY);
   }
 
-  private tieneToken(): boolean {
-    return !!localStorage.getItem(this.TOKEN_KEY);
+  private hayTokenValido(): boolean {
+    const token = this.getToken();
+    return !!token && !this.tokenExpirado(token);
+  }
+
+  private tokenExpirado(token: string): boolean {
+    try {
+      const payloadBase64 = token.split('.')[1];
+      if (!payloadBase64) {
+        return true;
+      }
+      const base64 = payloadBase64.replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(atob(base64));
+      if (!payload.exp) {
+        return false;
+      }
+      return payload.exp * 1000 <= Date.now();
+    } catch (error) {
+      return true;
+    }
   }
 }
