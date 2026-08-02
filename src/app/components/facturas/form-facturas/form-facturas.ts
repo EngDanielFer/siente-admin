@@ -159,7 +159,7 @@ export class FormFacturas implements OnInit, OnDestroy {
     );
   }
 
-  
+
   getPrecioUnitario(control: AbstractControl): number {
     const idProducto = control.get('id_producto')?.value;
     if (!idProducto) {
@@ -172,11 +172,11 @@ export class FormFacturas implements OnInit, OnDestroy {
     }
 
     const tipoPrecio = this.facturaForm.get('tipo_precio')?.value;
-    const precio =  tipoPrecio === 'detal' ? producto.precio_detal : producto.precio_por_mayor;
+    const precio = tipoPrecio === 'detal' ? producto.precio_detal : producto.precio_por_mayor;
     return Math.round(precio);
   }
 
-  getSubtotalFila(control: AbstractControl) : number {
+  getSubtotalFila(control: AbstractControl): number {
     const cantidad = control.get('cantidad_producto')?.value ?? 0;
     return Math.round(this.getPrecioUnitario(control) * cantidad);
   }
@@ -252,9 +252,22 @@ export class FormFacturas implements OnInit, OnDestroy {
         },
         error: err => {
           this.loading = false;
-          const msg = err.error?.message || 'Error al crear factura';
+          const backendError = err.error;
+          let msg = 'Error al crear factura';
+
+          if (backendError?.mensaje) {
+            msg = backendError.mensaje;
+
+            if (backendError.errores && typeof backendError.errores === 'object') {
+              const detalles = Object.values(backendError.errores).join(' | ');
+              if (detalles) {
+                msg = `${msg}: ${detalles}`;
+              }
+            }
+          }
+
           this.snackBar.open(msg, 'Cerrar', {
-            duration: 5000,
+            duration: 6000,
             panelClass: ['snack-error']
           });
         }
@@ -284,7 +297,7 @@ export class FormFacturas implements OnInit, OnDestroy {
   getNombreProducto(id: any): string {
     const producto = this.productosDisponibles.find(p => p.id === Number(id));
     return producto?.nombre_producto ?? 'Producto';
-  } 
+  }
 
   onDepartamentoChange(): void {
     const depto = this.facturaForm.get('datosCliente.region_cliente')?.value;
@@ -314,7 +327,7 @@ export class FormFacturas implements OnInit, OnDestroy {
         return { nombre, precioUnitario, cantidad, subtotal };
       })
       .filter(p => p.nombre !== 'Producto' && p.cantidad > 0);
-    
+
     await this.cotizacionPdfService.descargarCotizacion({
       productos: productosData,
       subtotalProductos: this.subtotalProductos,
